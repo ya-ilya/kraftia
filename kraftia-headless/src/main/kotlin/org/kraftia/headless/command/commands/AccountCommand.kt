@@ -1,16 +1,15 @@
 package org.kraftia.headless.command.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import org.kraftia.api.managers.AccountManager
 import org.kraftia.headless.command.AbstractCommand
 import org.kraftia.headless.command.arguments.AccountArgument
 
 object AccountCommand : AbstractCommand("account", "Manage accounts") {
-    override fun build(builder: LiteralArgumentBuilder<Any>) {
+    init {
         builder.then(
             literal("add").then(
-                argument("name", StringArgumentType.string()).executesSuccess { context ->
+                argument("name", StringArgumentType.string()).execute { context ->
                     val account = AccountManager.loginOffline(StringArgumentType.getString(context, "name"))
 
                     println("Login in as ${account.name}")
@@ -20,7 +19,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
 
         builder.then(
             literal("set").then(
-                argument("account", AccountArgument()).executesSuccess { context ->
+                argument("account", AccountArgument()).execute { context ->
                     AccountManager.current = AccountArgument[context]
                     println("Account switched to ${AccountManager.current!!.name} account")
                 }
@@ -29,7 +28,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
 
         builder.then(
             literal("remove").then(
-                argument("account", AccountArgument()).executesSuccess { context ->
+                argument("account", AccountArgument()).execute { context ->
                     val account = AccountArgument[context]
 
                     AccountManager.removeAccount(account)
@@ -39,7 +38,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
         )
 
         builder.then(
-            literal("list").executesSuccess {
+            literal("list").execute {
                 println("Accounts:")
 
                 for (account in AccountManager.accounts) {
@@ -48,7 +47,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
             }
         )
 
-        builder.executesSuccess {
+        builder.execute {
             if (AccountManager.current != null) {
                 println("Current account: ${AccountManager.current!!.name} (${AccountManager.current!!.uuid}")
             } else {

@@ -8,7 +8,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 
 abstract class AbstractCommand(val name: String, val description: String) {
-    abstract fun build(builder: LiteralArgumentBuilder<Any>)
+    val builder = literal(name)
 
     protected companion object {
         fun <T> argument(name: String, type: ArgumentType<T>): RequiredArgumentBuilder<Any, T> {
@@ -19,7 +19,7 @@ abstract class AbstractCommand(val name: String, val description: String) {
             return LiteralArgumentBuilder.literal(name)
         }
 
-        fun <S, T : ArgumentBuilder<S, T>> T.executesSuccess(block: (CommandContext<S>) -> Unit): T {
+        fun <S, T : ArgumentBuilder<S, T>> T.execute(block: (CommandContext<S>) -> Unit): T {
             return executes { context ->
                 block(context)
                 Command.SINGLE_SUCCESS

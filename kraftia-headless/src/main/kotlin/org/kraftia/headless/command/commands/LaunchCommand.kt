@@ -1,7 +1,6 @@
 package org.kraftia.headless.command.commands
 
 import com.mojang.brigadier.Message
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import org.kraftia.api.Api
 import org.kraftia.api.managers.AccountManager
@@ -15,11 +14,11 @@ object LaunchCommand : AbstractCommand("launch", "Launch specified version") {
 
     var process: Process? = null
 
-    override fun build(builder: LiteralArgumentBuilder<Any>) {
+    init {
         builder.then(
-            argument("version", VersionArgument()).executesSuccess { context ->
+            argument("version", VersionArgument()).execute { context ->
                 if (process?.isAlive == true) {
-                    return@executesSuccess println("Minecraft process already launched")
+                    return@execute println("Minecraft process already launched")
                 }
 
                 process = Api.launch(
