@@ -32,6 +32,7 @@ sealed class Account(
 
         override fun read(`in`: JsonReader): Account {
             `in`.beginObject()
+
             `in`.nextName()
             val type = `in`.nextString()
             `in`.nextName()
@@ -68,7 +69,8 @@ sealed class Account(
                 if (jsonElement.isJsonObject) {
                     return jsonElement.asJsonObject.get("id").asString
                 }
-            } catch (_: Exception) {
+            } catch (ex: Exception) {
+                // Ignored
             }
 
             return ""

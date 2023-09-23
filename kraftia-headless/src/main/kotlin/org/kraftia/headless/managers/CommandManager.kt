@@ -1,7 +1,6 @@
 package org.kraftia.headless.managers
 
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import org.kraftia.headless.command.AbstractCommand
 import org.kraftia.headless.command.container.CommandContainer
@@ -12,9 +11,7 @@ object CommandManager : CommandContainer {
     private val dispatcher = CommandDispatcher<Any>()
 
     override fun addCommand(command: AbstractCommand) {
-        val literal = LiteralArgumentBuilder.literal<Any>(command.name)
-        command.build(literal)
-        dispatcher.register(literal)
+        dispatcher.register(command.builder)
         super.addCommand(command)
     }
 
