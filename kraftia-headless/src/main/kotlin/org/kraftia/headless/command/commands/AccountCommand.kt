@@ -21,10 +21,19 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
         builder.then(
             literal("set").then(
                 argument("account", AccountArgument()).executesSuccess { context ->
+                    AccountManager.current = AccountArgument[context]
+                    println("Account switched to ${AccountManager.current!!.name} account")
+                }
+            )
+        )
+
+        builder.then(
+            literal("remove").then(
+                argument("account", AccountArgument()).executesSuccess { context ->
                     val account = AccountArgument[context]
 
-                    AccountManager.current = account
-                    println("Account switched to ${account.name} account")
+                    AccountManager.removeAccount(account)
+                    println("Removed ${account.name} account")
                 }
             )
         )

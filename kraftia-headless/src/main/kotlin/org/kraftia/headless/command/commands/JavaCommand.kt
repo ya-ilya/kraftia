@@ -37,6 +37,17 @@ object JavaCommand : AbstractCommand("java", "Manage java versions") {
         )
 
         builder.then(
+            literal("remove").then(
+                argument("java", JavaArgument()).executesSuccess { context ->
+                    val javaVersion = JavaArgument[context]
+
+                    JavaVersionManager.removeJavaVersion(javaVersion)
+                    println("Removed ${javaVersion.versionNumber} (${javaVersion.executable}) java version")
+                }
+            )
+        )
+
+        builder.then(
             literal("list").executesSuccess {
                 println("Java versions:")
 

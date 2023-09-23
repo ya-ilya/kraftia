@@ -12,6 +12,13 @@ object JavaVersionManager : JavaVersionContainer {
     override val javaVersions = mutableSetOf<JavaVersion>()
 
     var current: JavaVersion? = null
+        get() {
+            if (field != null && !javaVersions.contains(field)) {
+                field = null
+            }
+
+            return field
+        }
 
     init {
         if (Api.javaExecutablePath != null) {
