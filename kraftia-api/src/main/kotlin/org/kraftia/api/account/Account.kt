@@ -6,32 +6,31 @@ import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import okhttp3.Request
 import org.kraftia.api.Api
-import org.kraftia.api.account.accounts.OfflineAccount
 
-abstract class AbstractAccount(
+sealed class Account(
     val uuid: String? = null,
     val name: String? = null
 ) {
-    @JsonAdapter(AbstractAccount::class)
-    object TypeAdapter : com.google.gson.TypeAdapter<AbstractAccount>() {
-        override fun write(out: JsonWriter, value: AbstractAccount) {
+    class Offline(name: String, uuid: String? = null) : Account(uuid ?: uuid(name), name)
+
+    @JsonAdapter(Account::class)
+    object TypeAdapter : com.google.gson.TypeAdapter<Account>() {
+        override fun write(out: JsonWriter, value: Account) {
             out.beginObject()
             out.name("type").value(value.javaClass.simpleName)
             out.name("uuid").value(value.uuid)
             out.name("name").value(value.name)
 
             when (value) {
-                is OfflineAccount -> {
+                is Offline -> {
                     // Additional fields
                 }
-
-                else -> throw IllegalArgumentException()
             }
 
             out.endObject()
         }
 
-        override fun read(`in`: JsonReader): AbstractAccount {
+        override fun read(`in`: JsonReader): Account {
             `in`.beginObject()
             `in`.nextName()
             val type = `in`.nextString()
@@ -41,7 +40,7 @@ abstract class AbstractAccount(
             val name = `in`.nextString()
 
             val account = when (type) {
-                "OfflineAccount" -> OfflineAccount(name, uuid)
+                "Offline" -> Offline(name, uuid)
                 else -> throw IllegalArgumentException()
             }
 

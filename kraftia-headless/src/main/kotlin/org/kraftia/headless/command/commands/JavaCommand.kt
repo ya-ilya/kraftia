@@ -17,7 +17,9 @@ object JavaCommand : AbstractCommand("java", "Manage java versions") {
 
                     if (path.exists()) {
                         val javaVersion = JavaVersionManager.addJavaVersionByPath(path)
-                        println("Added java ${javaVersion.version}")
+                            ?: return@executesSuccess println("Java version with same version number already exists")
+
+                        println("Added java ${javaVersion.versionNumber}")
                     } else {
                         println("Path to java executable doesn't exists")
                     }
@@ -29,7 +31,7 @@ object JavaCommand : AbstractCommand("java", "Manage java versions") {
             literal("set").then(
                 argument("java", JavaArgument()).executesSuccess { context ->
                     JavaVersionManager.current = JavaArgument[context]
-                    println("Java version switched to ${JavaVersionManager.current!!.version}")
+                    println("Java version switched to ${JavaVersionManager.current!!.versionNumber}")
                 }
             )
         )
@@ -39,14 +41,14 @@ object JavaCommand : AbstractCommand("java", "Manage java versions") {
                 println("Java versions:")
 
                 for (java in JavaVersionManager.javaVersions) {
-                    println("- ${java.version} (${java.executable})")
+                    println("- ${java.versionNumber} (${java.executable})")
                 }
             }
         )
 
         builder.executesSuccess {
             if (JavaVersionManager.current != null) {
-                println("Current java version: ${JavaVersionManager.current!!.version} (${JavaVersionManager.current!!.executable})")
+                println("Current java version: ${JavaVersionManager.current!!.versionNumber} (${JavaVersionManager.current!!.executable})")
             } else {
                 println("You are not set java version")
             }

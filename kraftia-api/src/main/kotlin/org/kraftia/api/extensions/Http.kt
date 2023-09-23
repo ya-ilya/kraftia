@@ -27,5 +27,5 @@ fun download(url: String, path: Path, name: String = path.name, progress: Downlo
     path.createParentDirectories()
     path.writeBytes(response, StandardOpenOption.CREATE)
 
-    progress!!.pushMessage("Downloaded $name")
+    progress?.pushMessage("Downloaded $name")
 }

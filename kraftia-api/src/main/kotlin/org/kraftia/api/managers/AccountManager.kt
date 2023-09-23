@@ -1,16 +1,15 @@
 package org.kraftia.api.managers
 
-import org.kraftia.api.account.AbstractAccount
-import org.kraftia.api.account.accounts.OfflineAccount
+import org.kraftia.api.account.Account
 import org.kraftia.api.account.container.AccountContainer
 
 object AccountManager : AccountContainer {
-    override val accounts = mutableSetOf<AbstractAccount>()
+    override val accounts = mutableSetOf<Account>()
 
-    var current: AbstractAccount? = null
+    var current: Account? = null
 
-    fun loginOffline(name: String): AbstractAccount {
-        return OfflineAccount(name).also {
+    fun loginOffline(name: String): Account {
+        return Account.Offline(name).also {
             addAccount(it)
             current = it
         }

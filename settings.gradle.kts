@@ -10,6 +10,5 @@ pluginManagement {
 
 include(
     "kraftia-api",
-    "kraftia-gui",
     "kraftia-headless"
 )

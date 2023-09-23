@@ -1,6 +1,5 @@
 package org.kraftia.api.extensions
 
-import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.file.Path
@@ -18,10 +17,6 @@ fun Path.checkFileHash(other: String?, algorithm: String = "SHA-1"): Boolean {
 
 fun Path.hash(algorithm: String = "SHA-1"): String {
     return FileInputStream(toFile()).use { stream -> stream.hash(algorithm) }
-}
-
-fun String.hash(algorithm: String = "SHA-1"): String {
-    return ByteArrayInputStream(toByteArray()).use { stream -> stream.hash(algorithm) }
 }
 
 fun InputStream.hash(algorithm: String): String {

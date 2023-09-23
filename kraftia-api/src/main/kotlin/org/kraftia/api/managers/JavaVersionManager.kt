@@ -19,28 +19,24 @@ object JavaVersionManager : JavaVersionContainer {
         }
     }
 
-    fun addJavaVersionByPath(path: Path): JavaVersion {
+    fun addJavaVersionByPath(path: Path): JavaVersion? {
         val javaVersion = JavaVersion(
-            getJavaExecutableVersion(path),
+            getJavaVersionNumber(path),
             path.absolutePathString()
         )
 
-        addJavaVersion(javaVersion)
+        if (getJavaVersionByNumberOrNull(javaVersion.versionNumber) != null) {
+            return null
+        } else {
+            addJavaVersion(javaVersion)
+        }
 
         return javaVersion
     }
 
-    override fun addJavaVersion(javaVersion: JavaVersion) {
-        if (javaVersions.any { it.version == javaVersion.version }) {
-            throw IllegalArgumentException()
-        }
-
-        super.addJavaVersion(javaVersion)
-    }
-
-    private fun getJavaExecutableVersion(executable: Path): Int {
+    private fun getJavaVersionNumber(path: Path): Int {
         val process = ProcessBuilder()
-            .command(executable.absolutePathString(), "-version")
+            .command(path.absolutePathString(), "-version")
             .start()
 
         return javaVersionRegex

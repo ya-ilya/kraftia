@@ -1,23 +1,23 @@
 package org.kraftia.api.account.container
 
-import org.kraftia.api.account.AbstractAccount
+import org.kraftia.api.account.Account
 
 interface AccountContainer {
-    val accounts: MutableSet<AbstractAccount>
+    val accounts: MutableSet<Account>
 
-    fun getAccountByName(name: String): AbstractAccount {
+    fun getAccountByName(name: String): Account {
         return getAccountByNameOrNull(name)!!
     }
 
-    fun getAccountByNameOrNull(name: String): AbstractAccount? {
+    fun getAccountByNameOrNull(name: String): Account? {
         return accounts.firstOrNull { it.name == name }
     }
 
-    fun addAccount(account: AbstractAccount) {
+    fun addAccount(account: Account) {
         accounts.add(account)
     }
 
-    fun removeAccount(account: AbstractAccount) {
+    fun removeAccount(account: Account) {
         accounts.remove(account)
     }
 }

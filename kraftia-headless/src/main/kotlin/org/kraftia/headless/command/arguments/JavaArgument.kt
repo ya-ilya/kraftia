@@ -22,7 +22,7 @@ class JavaArgument : ArgumentType<JavaVersion> {
     override fun parse(reader: StringReader): JavaVersion {
         val argument = reader.readInt()
 
-        return JavaVersionManager.javaVersions.firstOrNull { it.version == argument }
+        return JavaVersionManager.javaVersions.firstOrNull { it.versionNumber == argument }
             ?: throw NO_SUCH_JAVA.create(argument)
     }
 }

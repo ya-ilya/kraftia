@@ -4,9 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import okhttp3.OkHttpClient
-import org.kraftia.api.account.AbstractAccount
-import org.kraftia.api.extensions.*
-import org.kraftia.api.java.JavaVersion
+import org.kraftia.api.account.Account
+import org.kraftia.api.extensions.checkRules
+import org.kraftia.api.extensions.path
+import org.kraftia.api.extensions.resourceJson
 import org.kraftia.api.managers.AccountManager
 import org.kraftia.api.managers.JavaVersionManager
 import org.kraftia.api.managers.VersionManager
@@ -23,15 +24,13 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 object Api {
     private val operatingSystem = OperatingSystem.current
 
     val GSON: Gson = GsonBuilder()
         .registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer)
-        .registerTypeHierarchyAdapter(AbstractAccount::class.java, AbstractAccount.TypeAdapter)
+        .registerTypeHierarchyAdapter(Account::class.java, Account.TypeAdapter)
         .create()
 
     val HTTP = OkHttpClient.Builder()
@@ -67,38 +66,9 @@ object Api {
         VersionManager
     }
 
-    fun loadConfig(path: Path) {
-        try {
-            val config = fromJson<Config>(path.readText())
-
-            for (account in config.accounts) AccountManager.addAccount(account)
-            AccountManager.current = config.accounts.first { it.name == config.currentAccount }
-
-            for (javaVersion in config.javaVersions) JavaVersionManager.addJavaVersion(javaVersion)
-            JavaVersionManager.current = config.javaVersions.first { it.version == config.currentJava }
-        } catch (ex: Exception) {
-            // Ignored
-        }
-    }
-
-    fun saveConfig(path: Path) {
-        try {
-            path.writeText(
-                Config(
-                    AccountManager.accounts,
-                    AccountManager.current?.name,
-                    JavaVersionManager.javaVersions,
-                    JavaVersionManager.current?.version
-                ).toJson()
-            )
-        } catch (ex: Exception) {
-            // Ignored
-        }
-    }
-
     fun launch(
         version: Version,
-        account: AbstractAccount,
+        account: Account,
         features: Map<String, Boolean> = emptyMap()
     ): Process {
         println("Launching ${version.id} using ${account.name} account (${account.uuid}")
@@ -142,7 +112,7 @@ object Api {
     private fun arguments(
         arguments: List<Arguments.Argument>,
         version: Version,
-        account: AbstractAccount,
+        account: Account,
         versionBinDirectory: Path,
         features: Map<String, Boolean>
     ): List<String> {
@@ -229,11 +199,4 @@ object Api {
                 }
         }
     }
-
-    data class Config(
-        val accounts: Set<AbstractAccount> = emptySet(),
-        val currentAccount: String? = null,
-        val javaVersions: Set<JavaVersion> = emptySet(),
-        val currentJava: Int? = null
-    )
 }
