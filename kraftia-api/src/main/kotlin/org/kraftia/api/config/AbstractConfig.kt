@@ -1,3 +1,3 @@
 package org.kraftia.api.config
 
-abstract class AbstractConfig(val name: String)
+abstract class AbstractConfig(@Transient val name: String)

@@ -29,6 +29,7 @@ object Api {
     private val operatingSystem = OperatingSystem.current
 
     val GSON: Gson = GsonBuilder()
+        .setPrettyPrinting()
         .registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer)
         .registerTypeHierarchyAdapter(Account::class.java, Account.TypeAdapter)
         .create()
@@ -43,13 +44,8 @@ object Api {
         .asString
 
     val launcherDirectory: Path = Paths.get("kraftia")
-    val minecraftDirectory: Path = operatingSystem.minecraftDirectory()
-    val javaExecutablePath: Path? = try {
-        val path = operatingSystem.javaExecutable()
-        if (path.exists()) path else null
-    } catch (ex: Exception) {
-        null
-    }
+    val minecraftDirectory: Path = operatingSystem.minecraftDirectory
+    val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
 
     val fabricVersionDownloader = FabricVersionDownloader()
     val versionDownloader = VersionDownloader(
@@ -165,21 +161,27 @@ object Api {
     }
 
     enum class OperatingSystem(
-        val minecraftDirectory: () -> Path,
-        val javaExecutable: () -> Path
+        val minecraftDirectory: Path,
+        var javaExecutablePath: Path?
     ) {
         Windows(
-            { path(System.getenv("APPDATA"), ".minecraft") },
-            { path(System.getProperty("java.home"), "bin", "java.exe") }
+            path(System.getenv("APPDATA"), ".minecraft"),
+            path(System.getProperty("java.home"), "bin", "java.exe")
         ),
         Linux(
-            { path(System.getProperty("user.home"), ".minecraft") },
-            { path(System.getProperty("java.home"), "bin", "java") }
+            path(System.getProperty("user.home"), ".minecraft"),
+            path(System.getProperty("java.home"), "bin", "java")
         ),
         OsX(
-            { path(System.getProperty("user.home"), "Library/Application Support/minecraft/") },
-            { path(System.getProperty("java.home"), "bin", "java") }
+            path(System.getProperty("user.home"), "Library/Application Support/minecraft/"),
+            path(System.getProperty("java.home"), "bin", "java")
         );
+
+        init {
+            if (!javaExecutablePath!!.exists()) {
+                javaExecutablePath = null
+            }
+        }
 
         override fun toString(): String {
             return name.lowercase()
