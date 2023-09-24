@@ -25,8 +25,6 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 object Api {
-    private val operatingSystem = OperatingSystem.current
-
     val GSON: Gson = GsonBuilder()
         .setPrettyPrinting()
         .registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer)
@@ -42,13 +40,13 @@ object Api {
         .getAsJsonPrimitive("Version")
         .asString
 
+    val operatingSystem = OperatingSystem.current
     val launcherDirectory: Path = Paths.get("kraftia")
     val minecraftDirectory: Path = operatingSystem.minecraftDirectory
     val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
 
     val fabricVersionDownloader = FabricVersionDownloader()
     val versionDownloader = VersionDownloader(
-        operatingSystem,
         path(minecraftDirectory, "versions"),
         path(minecraftDirectory, "libraries"),
         path(launcherDirectory, "bin"),

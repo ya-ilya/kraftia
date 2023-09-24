@@ -15,7 +15,6 @@ import kotlin.io.path.*
 
 @Suppress("MemberVisibilityCanBePrivate")
 class VersionDownloader(
-    val operatingSystem: Api.OperatingSystem,
     val versionsDirectory: Path,
     val librariesDirectory: Path,
     val binDirectory: Path,
@@ -178,7 +177,7 @@ class VersionDownloader(
         progress.pushMessage("Downloading libraries...")
 
         for (library in version.libraries) {
-            if (!library.rules.checkRules(operatingSystem, emptyMap())) continue
+            if (!library.rules.checkRules(Api.operatingSystem, emptyMap())) continue
             if (library.downloads == null && library.name != null) {
                 val (libraryGroup, libraryModule, libraryVersion) = library.name!!.split(":")
 
@@ -197,7 +196,7 @@ class VersionDownloader(
 
             val artifact = library.downloads!!.artifact
             val nativeArtifact = library.downloads!!.classifiers[
-                library.natives[operatingSystem.toString()]
+                library.natives[Api.operatingSystem.toString()]
             ]
 
             if (artifact != null) {
