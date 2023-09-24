@@ -8,20 +8,6 @@ class DownloaderProgress : AutoCloseable {
         fun <R> downloaderProgress(block: (DownloaderProgress) -> R): R {
             return DownloaderProgress().use(block)
         }
-
-        fun DownloaderProgress.withThread(threadName: String, loopBlock: (DownloaderProgress) -> Unit): Thread {
-            return thread(name = threadName) {
-                while (!closed) {
-                    loopBlock(this)
-                }
-            }
-        }
-
-        fun DownloaderProgress.withLoggingThread(threadName: String): Thread {
-            return withThread(threadName) {
-                println(popMessage() ?: return@withThread)
-            }
-        }
     }
 
     private val messages = mutableListOf<String>()
@@ -34,6 +20,20 @@ class DownloaderProgress : AutoCloseable {
 
     fun popMessage(): String? {
         return messages.removeFirstOrNull()
+    }
+
+    fun withThread(threadName: String, loopBlock: (DownloaderProgress) -> Unit): Thread {
+        return thread(name = threadName) {
+            while (!closed) {
+                loopBlock(this)
+            }
+        }
+    }
+
+    fun withLoggingThread(threadName: String): Thread {
+        return withThread(threadName) {
+            println(popMessage() ?: return@withThread)
+        }
     }
 
     override fun close() {

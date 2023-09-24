@@ -44,6 +44,6 @@ fun main() {
     while (true) {
         print("kraftia>")
 
-        CommandManager.dispatch(readln())
+        CommandManager.dispatch(readlnOrNull() ?: break)
     }
 }

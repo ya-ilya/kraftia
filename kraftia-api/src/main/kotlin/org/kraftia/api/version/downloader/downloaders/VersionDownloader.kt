@@ -46,10 +46,9 @@ class VersionDownloader(
         private const val ASSETS_URL = "https://resources.download.minecraft.net"
 
         val versions: List<VersionManifest> = run {
-            val response = get(MANIFEST_URL).body.string()
             val result = mutableListOf<VersionManifest>()
 
-            for (version in fromJson<JsonObject>(response).getAsJsonArray("versions")) {
+            for (version in get<JsonObject>(MANIFEST_URL).getAsJsonArray("versions")) {
                 result.add(
                     fromJson<VersionManifest>(version)
                 )

@@ -10,6 +10,10 @@ import kotlin.io.path.createParentDirectories
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
 
+inline fun <reified T> get(url: String): T {
+    return fromJson(get(url).body.string())
+}
+
 fun get(url: String): Response {
     val request = Request.Builder()
         .get()

@@ -27,10 +27,9 @@ class FabricVersionDownloader {
         private const val INSTALLERS_URL = "https://meta.fabricmc.net/v2/versions/installer"
 
         val versions: List<VersionManifest> = run {
-            val response = get(MANIFEST_URL).body.string()
             val result = mutableListOf<VersionManifest>()
 
-            for (version in fromJson<JsonArray>(response)) {
+            for (version in get<JsonArray>(MANIFEST_URL)) {
                 result.add(
                     fromJson<VersionManifest>(version)
                 )
@@ -40,10 +39,8 @@ class FabricVersionDownloader {
         }
 
         val installer: Installer = run {
-            val response = get(INSTALLERS_URL).body.string()
-
             fromJson<Installer>(
-                fromJson<JsonArray>(response).first()
+                get<JsonArray>(INSTALLERS_URL).first()
             )
         }
     }

@@ -8,3 +8,8 @@
 </div>
 
 Simple and lightweight launcher for [Minecraft](https://www.minecraft.net/)
+
+### Installation
+
+- Download the latest release from [releases](https://github.com/ya-ilya/kraftia/releases) or dev build from [actions](https://github.com/ya-ilya/kraftia/actions)
+- Run `java -jar kraftia-headless-VERSION.jar` from command line
