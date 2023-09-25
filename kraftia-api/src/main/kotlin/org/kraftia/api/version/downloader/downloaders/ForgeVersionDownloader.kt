@@ -14,8 +14,9 @@ class ForgeVersionDownloader {
         val installerUrl by lazy {
             FORGE_VERSION_INSTALLER_REGEX
                 .findAll(get("${FORGE_URL}index_$version.html").body.string())
-                .last()
-                .groupValues[1]
+                .lastOrNull()
+                ?.groupValues
+                ?.getOrNull(1)
         }
     }
 
@@ -39,6 +40,11 @@ class ForgeVersionDownloader {
         progress.pushMessage("Downloading $id forge version")
 
         val version = versions.first { it.version == id }
+
+        if (version.installerUrl == null) {
+            throw IllegalArgumentException("Fabric version $id doesn't have installer")
+        }
+
         val installerPath = path(
             Api.launcherDirectory,
             "forge-installer-${version.version}.jar"
@@ -46,7 +52,7 @@ class ForgeVersionDownloader {
 
         if (!installerPath.exists()) {
             org.kraftia.api.extensions.download(
-                url = version.installerUrl,
+                url = version.installerUrl!!,
                 path = installerPath,
                 progress = progress
             )

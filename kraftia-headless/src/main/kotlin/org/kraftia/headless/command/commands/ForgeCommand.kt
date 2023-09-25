@@ -5,6 +5,7 @@ import org.kraftia.api.version.downloader.DownloaderProgress
 import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 import org.kraftia.headless.command.AbstractCommand
 import org.kraftia.headless.command.arguments.manifest.ForgeVersionManifestArgument
+import java.lang.IllegalArgumentException
 
 object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
     init {
@@ -13,7 +14,12 @@ object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
                 argument("version", ForgeVersionManifestArgument()).execute { context ->
                     DownloaderProgress.downloaderProgress { progress ->
                         progress.withLoggingThread("VersionDownloader")
-                        Api.forgeVersionDownloader.download(progress, ForgeVersionManifestArgument[context].version)
+
+                        try {
+                            Api.forgeVersionDownloader.download(progress, ForgeVersionManifestArgument[context].version)
+                        } catch (ex: IllegalArgumentException) {
+                            println(ex.message)
+                        }
                     }
                 }
             )
