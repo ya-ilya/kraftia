@@ -15,6 +15,7 @@ fun main() {
     CommandManager.addCommand(AccountCommand)
     CommandManager.addCommand(ExitCommand)
     CommandManager.addCommand(FabricCommand)
+    CommandManager.addCommand(ForgeCommand)
     CommandManager.addCommand(HelpCommand)
     CommandManager.addCommand(JavaCommand)
     CommandManager.addCommand(LaunchCommand)

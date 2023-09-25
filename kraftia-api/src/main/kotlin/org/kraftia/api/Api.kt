@@ -15,6 +15,7 @@ import org.kraftia.api.version.Arguments
 import org.kraftia.api.version.Version
 import org.kraftia.api.version.downloader.DownloaderProgress.Companion.downloaderProgress
 import org.kraftia.api.version.downloader.downloaders.FabricVersionDownloader
+import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 import org.kraftia.api.version.downloader.downloaders.VersionDownloader
 import org.kraftia.api.version.serializers.ArgumentsDeserializer
 import java.io.File
@@ -46,6 +47,7 @@ object Api {
     val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
 
     val fabricVersionDownloader = FabricVersionDownloader()
+    val forgeVersionDownloader = ForgeVersionDownloader()
     val versionDownloader = VersionDownloader(
         path(minecraftDirectory, "versions"),
         path(minecraftDirectory, "libraries"),
