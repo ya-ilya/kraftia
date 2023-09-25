@@ -9,7 +9,7 @@ class JavaVersionConfig(
     private val javaVersions: Set<JavaVersion> = emptySet(),
     private val current: Int? = null
 ) : AbstractConfig("java") {
-    companion object : AbstractConfigClass<JavaVersionConfig>("javaVersions.json", JavaVersionConfig::class) {
+    companion object : AbstractConfigClass<JavaVersionConfig>("java.json", JavaVersionConfig::class) {
         override fun createConfig(): JavaVersionConfig {
             return JavaVersionConfig(
                 JavaVersionManager.javaVersions,
