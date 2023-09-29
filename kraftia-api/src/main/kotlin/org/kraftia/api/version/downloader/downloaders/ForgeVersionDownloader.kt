@@ -42,7 +42,7 @@ class ForgeVersionDownloader {
         val version = versions.first { it.version == id }
 
         if (version.installerUrl == null) {
-            throw IllegalArgumentException("Fabric version $id doesn't have installer")
+            throw IllegalArgumentException("Forge version $id doesn't have installer")
         }
 
         val installerPath = path(

@@ -12,6 +12,7 @@ sealed class Account(
     val name: String? = null
 ) {
     class Offline(name: String, uuid: String? = null) : Account(uuid ?: uuid(name), name)
+    class Microsoft(name: String, uuid: String, val token: String) : Account(uuid, name)
 
     @JsonAdapter(Account::class)
     object TypeAdapter : com.google.gson.TypeAdapter<Account>() {
@@ -22,9 +23,11 @@ sealed class Account(
             out.name("name").value(value.name)
 
             when (value) {
-                is Offline -> {
-                    // Additional fields
+                is Microsoft -> {
+                    out.name("token").value(value.token)
                 }
+
+                else -> {}
             }
 
             out.endObject()
@@ -42,6 +45,12 @@ sealed class Account(
 
             val account = when (type) {
                 "Offline" -> Offline(name, uuid)
+
+                "Microsoft" -> {
+                    `in`.nextName()
+                    Microsoft(name, uuid, `in`.nextString())
+                }
+
                 else -> throw IllegalArgumentException()
             }
 

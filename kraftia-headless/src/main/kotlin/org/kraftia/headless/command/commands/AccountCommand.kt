@@ -8,13 +8,27 @@ import org.kraftia.headless.command.arguments.AccountArgument
 object AccountCommand : AbstractCommand("account", "Manage accounts") {
     init {
         builder.then(
-            literal("add").then(
-                argument("name", StringArgumentType.string()).execute { context ->
-                    val account = AccountManager.loginOffline(StringArgumentType.getString(context, "name"))
+            literal("add")
+                .then(
+                    literal("offline").then(
+                        argument("name", StringArgumentType.string()).execute { context ->
+                            val account = AccountManager.loginOffline(StringArgumentType.getString(context, "name"))
 
-                    println("Login in as ${account.name}")
-                }
-            )
+                            println("Login in as ${account.name}")
+                        }
+                    )
+                )
+                .then(
+                    literal("microsoft").execute {
+                        val account = AccountManager.loginMicrosoft()
+
+                        if (account != null) {
+                            println("Login in as ${account.name}")
+                        } else {
+                            println("Failed to login with microsoft account")
+                        }
+                    }
+                )
         )
 
         builder.then(
@@ -42,16 +56,18 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
                 println("Accounts:")
 
                 for (account in AccountManager.accounts) {
-                    println("- ${account.name} (${account.uuid})")
+                    println("- [${account.javaClass.simpleName}] ${account.name} (${account.uuid})")
                 }
             }
         )
 
         builder.execute {
-            if (AccountManager.current != null) {
-                println("Current account: ${AccountManager.current!!.name} (${AccountManager.current!!.uuid}")
-            } else {
-                println("You are not logged in")
+            AccountManager.current.also {
+                if (it != null) {
+                    println("Current account: [${it.javaClass.simpleName}] ${it.name} (${it.uuid}")
+                } else {
+                    println("You are not logged in")
+                }
             }
         }
     }

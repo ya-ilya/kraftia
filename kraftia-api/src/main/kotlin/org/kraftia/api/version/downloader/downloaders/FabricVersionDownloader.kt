@@ -27,15 +27,8 @@ class FabricVersionDownloader {
         private const val INSTALLERS_URL = "https://meta.fabricmc.net/v2/versions/installer"
 
         val versions: List<VersionManifest> = run {
-            val result = mutableListOf<VersionManifest>()
-
-            for (version in get<JsonArray>(MANIFEST_URL)) {
-                result.add(
-                    fromJson<VersionManifest>(version)
-                )
-            }
-
-            result
+            get<JsonArray>(MANIFEST_URL)
+                .map { fromJson<VersionManifest>(it) }
         }
 
         val installer: Installer = run {
@@ -53,7 +46,7 @@ class FabricVersionDownloader {
 
         val installerPath = path(
             Api.launcherDirectory,
-            "fabric-installer.jar"
+            "fabric-installer-${installer.version}.jar"
         )
 
         if (!installerPath.exists()) {

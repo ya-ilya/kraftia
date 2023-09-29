@@ -3,6 +3,7 @@ package org.kraftia.api
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
+import me.liuli.elixir.account.MicrosoftAccount
 import okhttp3.OkHttpClient
 import org.kraftia.api.account.Account
 import org.kraftia.api.extensions.checkRules
@@ -26,6 +27,13 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 object Api {
+    val AUTH = MicrosoftAccount.AuthMethod(
+        "d61d878d-79b6-455e-9b65-5d94d8416aad",
+        "http://localhost:1919/login",
+        "XboxLive.signin%20offline_access",
+        "d=<access_token>"
+    ).also { MicrosoftAccount.AuthMethod.registry["CUSTOM"] = it }
+
     val GSON: Gson = GsonBuilder()
         .setPrettyPrinting()
         .registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer)
@@ -37,7 +45,7 @@ object Api {
         .readTimeout(60, TimeUnit.SECONDS)
         .build()
 
-    val VERSION = resourceJson<JsonObject>("kraftia.json")
+    val VERSION: String = resourceJson<JsonObject>("kraftia.json")
         .getAsJsonPrimitive("Version")
         .asString
 
@@ -145,11 +153,11 @@ object Api {
 
         adapter["assets_index_name"] = version.assets!!
 
-        adapter["user_type"] = "mojang"
+        adapter["user_type"] = "msa"
         adapter["auth_player_name"] = account.name!!
         adapter["auth_uuid"] = account.uuid!!
-        adapter["auth_access_token"] = "00000000000000000000000000000000"
-        adapter["auth_session"] = "00000000000000000000000000000000"
+        adapter["auth_access_token"] = if (account is Account.Microsoft) account.token
+        else "00000000000000000000000000000000"
 
         adapter["auth_xuid"] = ""
         adapter["clientid"] = ""

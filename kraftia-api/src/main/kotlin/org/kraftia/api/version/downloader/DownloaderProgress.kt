@@ -2,8 +2,8 @@ package org.kraftia.api.version.downloader
 
 import kotlin.concurrent.thread
 
+@Suppress("MemberVisibilityCanBePrivate")
 class DownloaderProgress : AutoCloseable {
-    @Suppress("MemberVisibilityCanBePrivate")
     companion object {
         fun <R> downloaderProgress(block: (DownloaderProgress) -> R): R {
             return DownloaderProgress().use(block)
@@ -11,8 +11,7 @@ class DownloaderProgress : AutoCloseable {
     }
 
     private val messages = mutableListOf<String>()
-
-    var closed = false
+    private var closed = false
 
     fun pushMessage(string: String) {
         messages.add(string)
@@ -22,17 +21,17 @@ class DownloaderProgress : AutoCloseable {
         return messages.removeFirstOrNull()
     }
 
-    fun withThread(threadName: String, loopBlock: (DownloaderProgress) -> Unit): Thread {
+    fun withLoggingThread(threadName: String): Thread {
+        return withThread(threadName) {
+            println(popMessage() ?: return@withThread)
+        }
+    }
+
+    private fun withThread(threadName: String, loopBlock: (DownloaderProgress) -> Unit): Thread {
         return thread(name = threadName) {
             while (!closed) {
                 loopBlock(this)
             }
-        }
-    }
-
-    fun withLoggingThread(threadName: String): Thread {
-        return withThread(threadName) {
-            println(popMessage() ?: return@withThread)
         }
     }
 
