@@ -12,4 +12,4 @@ Simple and lightweight launcher for [Minecraft](https://www.minecraft.net/)
 ### Installation
 
 - Latest release is located on the [releases page](https://github.com/ya-ilya/kraftia/releases)
-- Dev build can be downloaded from [actions page](https://github.com/ya-ilya/kraftia/actions)
+- Dev build can be downloaded from the [actions page](https://github.com/ya-ilya/kraftia/actions)

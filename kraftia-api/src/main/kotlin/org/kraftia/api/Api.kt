@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import me.liuli.elixir.account.MicrosoftAccount
+import me.liuli.elixir.account.MinecraftAccount
 import okhttp3.OkHttpClient
-import org.kraftia.api.account.Account
 import org.kraftia.api.config.configs.AccountConfig
 import org.kraftia.api.config.configs.AccountConfig.Companion.apply
 import org.kraftia.api.config.configs.AccountConfig.Companion.write
@@ -33,6 +33,11 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 object Api {
+    val operatingSystem = OperatingSystem.current
+    val launcherDirectory: Path = Paths.get("kraftia")
+    val minecraftDirectory: Path = operatingSystem.minecraftDirectory
+    val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
+
     val AUTH = MicrosoftAccount.AuthMethod(
         "d61d878d-79b6-455e-9b65-5d94d8416aad",
         "http://localhost:1919/login",
@@ -40,25 +45,21 @@ object Api {
         "d=<access_token>"
     ).also { MicrosoftAccount.AuthMethod.registry["CUSTOM"] = it }
 
-    val GSON: Gson = GsonBuilder()
-        .setPrettyPrinting()
-        .registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer)
-        .registerTypeHierarchyAdapter(Account::class.java, Account.TypeAdapter)
-        .create()
-
     val HTTP = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .build()
 
+    val GSON: Gson = GsonBuilder()
+        .setPrettyPrinting()
+        .registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer)
+        .registerTypeAdapter(AccountConfig::class.java, AccountConfig)
+        .registerTypeAdapter(JavaVersionConfig::class.java, JavaVersionConfig)
+        .create()
+
     val VERSION: String = resourceJson<JsonObject>("kraftia.json")
         .getAsJsonPrimitive("Version")
         .asString
-
-    val operatingSystem = OperatingSystem.current
-    val launcherDirectory: Path = Paths.get("kraftia")
-    val minecraftDirectory: Path = operatingSystem.minecraftDirectory
-    val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
 
     val fabricVersionDownloader = FabricVersionDownloader()
     val forgeVersionDownloader = ForgeVersionDownloader()
@@ -87,10 +88,10 @@ object Api {
 
     fun launch(
         version: Version,
-        account: Account,
+        account: MinecraftAccount,
         features: Map<String, Boolean> = emptyMap()
     ): Process {
-        println("Launching ${version.id} using ${account.name} account (${account.uuid}")
+        println("Launching ${version.id} using ${account.name} account")
 
         val (resultVersion, resultClasspath, resultBinDirectory) = downloaderProgress { progress ->
             progress.withLoggingThread("VersionDownloader")
@@ -131,7 +132,7 @@ object Api {
     private fun arguments(
         arguments: List<Arguments.Argument>,
         version: Version,
-        account: Account,
+        account: MinecraftAccount,
         versionBinDirectory: Path,
         features: Map<String, Boolean>
     ): List<String> {
@@ -170,10 +171,9 @@ object Api {
         adapter["assets_index_name"] = version.assets!!
 
         adapter["user_type"] = "msa"
-        adapter["auth_player_name"] = account.name!!
-        adapter["auth_uuid"] = account.uuid!!
-        adapter["auth_access_token"] = if (account is Account.Microsoft) account.token
-        else "00000000000000000000000000000000"
+        adapter["auth_player_name"] = account.name
+        adapter["auth_uuid"] = account.session.uuid
+        adapter["auth_access_token"] = account.session.token
 
         adapter["auth_xuid"] = ""
         adapter["clientid"] = ""

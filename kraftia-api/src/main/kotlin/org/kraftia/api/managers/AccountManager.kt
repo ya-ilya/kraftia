@@ -1,22 +1,22 @@
 package org.kraftia.api.managers
 
+import me.liuli.elixir.account.CrackedAccount
 import me.liuli.elixir.account.MicrosoftAccount
+import me.liuli.elixir.account.MinecraftAccount
 import me.liuli.elixir.compat.OAuthServer
 import org.kraftia.api.Api
-import org.kraftia.api.account.Account
-import org.kraftia.api.account.container.AccountContainer
 import java.awt.Desktop
 import java.net.URI
 import java.util.concurrent.ThreadPoolExecutor
 
-object AccountManager : AccountContainer {
+object AccountManager {
     private val THREAD_POOL_EXECUTOR_FIELD = OAuthServer::class.java
         .getDeclaredField("threadPoolExecutor")
         .also { it.isAccessible = true }
 
-    override val accounts = mutableSetOf<Account>()
+    val accounts = mutableSetOf<MinecraftAccount>()
 
-    var current: Account? = null
+    var current: MinecraftAccount? = null
         get() {
             if (field != null && !accounts.contains(field)) {
                 field = null
@@ -25,7 +25,25 @@ object AccountManager : AccountContainer {
             return field
         }
 
-    fun loginMicrosoft(): Account? {
+
+    fun getAccountByName(name: String): MinecraftAccount {
+        return getAccountByNameOrNull(name)!!
+    }
+
+    fun getAccountByNameOrNull(name: String): MinecraftAccount? {
+        return accounts.firstOrNull { it.name == name }
+    }
+
+    fun addAccount(account: MinecraftAccount) {
+        accounts.removeIf { it.name == account.name }
+        accounts.add(account)
+    }
+
+    fun removeAccount(account: MinecraftAccount) {
+        accounts.remove(account)
+    }
+
+    fun loginMicrosoft(): MinecraftAccount? {
         var result: MicrosoftAccount? = null
 
         val server = MicrosoftAccount.buildFromOpenBrowser(object : MicrosoftAccount.OAuthHandler {
@@ -59,20 +77,15 @@ object AccountManager : AccountContainer {
             // Server
         }
 
-        return result?.let {
-            Account.Microsoft(
-                result!!.session.username,
-                result!!.session.uuid,
-                result!!.session.token
-            ).also {
-                addAccount(it)
-                current = it
-            }
+        return result?.also {
+            addAccount(it)
+            current = it
         }
     }
 
-    fun loginOffline(name: String): Account {
-        return Account.Offline(name).also {
+    fun loginCracked(name: String): MinecraftAccount {
+        return CrackedAccount().also {
+            it.name = name
             addAccount(it)
             current = it
         }

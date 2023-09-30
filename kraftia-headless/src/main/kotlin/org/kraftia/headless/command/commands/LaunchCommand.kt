@@ -7,6 +7,13 @@ import org.kraftia.headless.command.arguments.VersionArgument
 
 object LaunchCommand : AbstractCommand("launch", "Launch specified version") {
     var process: Process? = null
+        get() {
+            if (field != null && !field!!.isAlive) {
+                field = null
+            }
+
+            return field
+        }
 
     init {
         builder.then(
@@ -22,6 +29,8 @@ object LaunchCommand : AbstractCommand("launch", "Launch specified version") {
                 )
 
                 println("Minecraft exited with code: ${process!!.waitFor()}")
+
+                process = null
             }
         )
     }
