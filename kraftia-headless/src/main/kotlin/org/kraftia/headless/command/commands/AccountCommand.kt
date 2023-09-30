@@ -56,7 +56,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
                 println("Accounts:")
 
                 for (account in AccountManager.accounts) {
-                    println("- [${account.javaClass.simpleName}] ${account.name} (${account.uuid})")
+                    println("- [${account.javaClass.simpleName.first()}] ${account.name} (${account.uuid})")
                 }
             }
         )
@@ -64,7 +64,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
         builder.execute {
             AccountManager.current.also {
                 if (it != null) {
-                    println("Current account: [${it.javaClass.simpleName}] ${it.name} (${it.uuid}")
+                    println("Current account: [${it.javaClass.simpleName.first()}] ${it.name} (${it.uuid}")
                 } else {
                     println("You are not logged in")
                 }

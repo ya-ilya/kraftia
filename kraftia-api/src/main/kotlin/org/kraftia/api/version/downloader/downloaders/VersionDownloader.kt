@@ -52,6 +52,7 @@ class VersionDownloader(
     }
 
     init {
+        versionsDirectory.createDirectories()
         librariesDirectory.createDirectories()
         binDirectory.createDirectories()
         assetsDirectory.createDirectories()

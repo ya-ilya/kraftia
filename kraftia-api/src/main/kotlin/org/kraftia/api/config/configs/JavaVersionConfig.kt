@@ -9,15 +9,15 @@ class JavaVersionConfig(
     private val javaVersions: Set<JavaVersion> = emptySet(),
     private val current: Int? = null
 ) : AbstractConfig("java") {
-    companion object : AbstractConfigClass<JavaVersionConfig>("java.json", JavaVersionConfig::class) {
-        override fun createConfig(): JavaVersionConfig {
+    companion object : AbstractConfigClass<JavaVersionConfig>("java", JavaVersionConfig::class) {
+        override fun create(): JavaVersionConfig {
             return JavaVersionConfig(
                 JavaVersionManager.javaVersions,
                 JavaVersionManager.current?.versionNumber
             )
         }
 
-        override fun JavaVersionConfig.applyConfig() {
+        override fun JavaVersionConfig.apply() {
             for (javaVersion in javaVersions
                 .filter { JavaVersionManager.getJavaVersionByNumberOrNull(it.versionNumber) == null }
             ) {

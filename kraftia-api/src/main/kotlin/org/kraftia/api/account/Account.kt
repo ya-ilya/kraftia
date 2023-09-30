@@ -8,11 +8,11 @@ import okhttp3.Request
 import org.kraftia.api.Api
 
 sealed class Account(
-    val uuid: String? = null,
-    val name: String? = null
+    val name: String? = null,
+    val uuid: String? = null
 ) {
-    class Offline(name: String, uuid: String? = null) : Account(uuid ?: uuid(name), name)
-    class Microsoft(name: String, uuid: String, val token: String) : Account(uuid, name)
+    class Offline(name: String, uuid: String? = null) : Account(name, uuid ?: uuid(name))
+    class Microsoft(name: String, uuid: String, val token: String) : Account(name, uuid)
 
     @JsonAdapter(Account::class)
     object TypeAdapter : com.google.gson.TypeAdapter<Account>() {

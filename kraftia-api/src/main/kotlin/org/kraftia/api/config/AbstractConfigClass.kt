@@ -9,23 +9,23 @@ import kotlin.io.path.writeText
 import kotlin.reflect.KClass
 
 abstract class AbstractConfigClass<T : AbstractConfig>(
-    fileName: String,
+    name: String,
     private val clazz: KClass<T>
 ) {
-    private val path = path(Api.launcherDirectory, fileName)
+    private val path = path(Api.launcherDirectory, "$name.json")
 
-    fun readConfig(): T {
+    fun read(): T {
         path.createParentDirectories()
 
         return if (path.exists()) Api.GSON.fromJson(path.readText(), clazz.java)
-        else createConfig()
+        else create()
     }
 
-    fun T.writeConfig() {
+    fun T.write() {
         path.createParentDirectories()
         path.writeText(Api.GSON.toJson(this, clazz.java))
     }
 
-    abstract fun createConfig(): T
-    abstract fun T.applyConfig()
+    abstract fun create(): T
+    abstract fun T.apply()
 }

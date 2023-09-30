@@ -1,17 +1,11 @@
 package org.kraftia.headless.command.commands
 
-import com.mojang.brigadier.Message
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import org.kraftia.api.Api
 import org.kraftia.api.managers.AccountManager
 import org.kraftia.headless.command.AbstractCommand
 import org.kraftia.headless.command.arguments.VersionArgument
 
 object LaunchCommand : AbstractCommand("launch", "Launch specified version") {
-    private val ACCOUNT_ERROR = DynamicCommandExceptionType { _: Any ->
-        Message { "Login in account before launching game" }
-    }
-
     var process: Process? = null
 
     init {
@@ -23,7 +17,8 @@ object LaunchCommand : AbstractCommand("launch", "Launch specified version") {
 
                 process = Api.launch(
                     VersionArgument[context],
-                    AccountManager.current ?: throw ACCOUNT_ERROR.create(Any())
+                    AccountManager.current
+                        ?: throw IllegalArgumentException("Login in account before launching game")
                 )
 
                 println("Minecraft exited with code: ${process!!.waitFor()}")

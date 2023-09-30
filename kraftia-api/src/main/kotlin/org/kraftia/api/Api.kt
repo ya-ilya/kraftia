@@ -6,6 +6,12 @@ import com.google.gson.JsonObject
 import me.liuli.elixir.account.MicrosoftAccount
 import okhttp3.OkHttpClient
 import org.kraftia.api.account.Account
+import org.kraftia.api.config.configs.AccountConfig
+import org.kraftia.api.config.configs.AccountConfig.Companion.apply
+import org.kraftia.api.config.configs.AccountConfig.Companion.write
+import org.kraftia.api.config.configs.JavaVersionConfig
+import org.kraftia.api.config.configs.JavaVersionConfig.Companion.apply
+import org.kraftia.api.config.configs.JavaVersionConfig.Companion.write
 import org.kraftia.api.extensions.checkRules
 import org.kraftia.api.extensions.path
 import org.kraftia.api.extensions.resourceJson
@@ -67,6 +73,16 @@ object Api {
         AccountManager
         JavaVersionManager
         VersionManager
+    }
+
+    fun configs() {
+        AccountConfig.read().apply()
+        JavaVersionConfig.read().apply()
+
+        Runtime.getRuntime().addShutdownHook(Thread {
+            AccountConfig.create().write()
+            JavaVersionConfig.create().write()
+        })
     }
 
     fun launch(

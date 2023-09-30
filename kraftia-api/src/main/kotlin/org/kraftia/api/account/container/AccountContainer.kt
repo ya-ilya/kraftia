@@ -14,10 +14,7 @@ interface AccountContainer {
     }
 
     fun addAccount(account: Account) {
-        if (accounts.any { it.name == account.name }) {
-            throw IllegalArgumentException("Account with same name already exists")
-        }
-
+        accounts.removeIf { it.name == account.name || it.uuid == account.uuid }
         accounts.add(account)
     }
 

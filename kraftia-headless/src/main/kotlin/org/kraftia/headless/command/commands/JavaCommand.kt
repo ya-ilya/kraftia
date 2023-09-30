@@ -3,7 +3,7 @@ package org.kraftia.headless.command.commands
 import com.mojang.brigadier.arguments.StringArgumentType
 import org.kraftia.api.managers.JavaVersionManager
 import org.kraftia.headless.command.AbstractCommand
-import org.kraftia.headless.command.arguments.JavaArgument
+import org.kraftia.headless.command.arguments.JavaVersionArgument
 import java.nio.file.Paths
 import kotlin.io.path.exists
 
@@ -28,8 +28,8 @@ object JavaCommand : AbstractCommand("java", "Manage java versions") {
 
         builder.then(
             literal("set").then(
-                argument("java", JavaArgument()).execute { context ->
-                    JavaVersionManager.current = JavaArgument[context]
+                argument("java", JavaVersionArgument()).execute { context ->
+                    JavaVersionManager.current = JavaVersionArgument[context]
                     println("Java version switched to ${JavaVersionManager.current!!.versionNumber}")
                 }
             )
@@ -37,8 +37,8 @@ object JavaCommand : AbstractCommand("java", "Manage java versions") {
 
         builder.then(
             literal("remove").then(
-                argument("java", JavaArgument()).execute { context ->
-                    val javaVersion = JavaArgument[context]
+                argument("java", JavaVersionArgument()).execute { context ->
+                    val javaVersion = JavaVersionArgument[context]
 
                     JavaVersionManager.removeJavaVersion(javaVersion)
                     println("Removed ${javaVersion.versionNumber} (${javaVersion.executable}) java version")

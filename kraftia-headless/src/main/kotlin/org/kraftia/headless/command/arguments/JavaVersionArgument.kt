@@ -8,10 +8,10 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import org.kraftia.api.java.JavaVersion
 import org.kraftia.api.managers.JavaVersionManager
 
-class JavaArgument : ArgumentType<JavaVersion> {
+class JavaVersionArgument : ArgumentType<JavaVersion> {
     companion object {
-        private val NO_SUCH_JAVA = DynamicCommandExceptionType { name: Any ->
-            Message { "Java $name not found" }
+        private val NO_SUCH_JAVA_VERSION = DynamicCommandExceptionType { name: Any ->
+            Message { "Java version $name not found" }
         }
 
         operator fun get(context: CommandContext<Any>): JavaVersion {
@@ -23,6 +23,6 @@ class JavaArgument : ArgumentType<JavaVersion> {
         val argument = reader.readInt()
 
         return JavaVersionManager.javaVersions.firstOrNull { it.versionNumber == argument }
-            ?: throw NO_SUCH_JAVA.create(argument)
+            ?: throw NO_SUCH_JAVA_VERSION.create(argument)
     }
 }

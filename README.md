@@ -11,5 +11,5 @@ Simple and lightweight launcher for [Minecraft](https://www.minecraft.net/)
 
 ### Installation
 
-- Download the latest release from [releases](https://github.com/ya-ilya/kraftia/releases) or dev build from [actions](https://github.com/ya-ilya/kraftia/actions)
-- Run `java -jar kraftia-headless-VERSION.jar` from command line
+- Latest release is located on the [releases page](https://github.com/ya-ilya/kraftia/releases)
+- Dev build can be downloaded from [actions page](https://github.com/ya-ilya/kraftia/actions)

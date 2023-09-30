@@ -9,15 +9,15 @@ class AccountConfig(
     private val accounts: Set<Account> = emptySet(),
     private val current: String? = null
 ) : AbstractConfig("account") {
-    companion object : AbstractConfigClass<AccountConfig>("accounts.json", AccountConfig::class) {
-        override fun createConfig(): AccountConfig {
+    companion object : AbstractConfigClass<AccountConfig>("accounts", AccountConfig::class) {
+        override fun create(): AccountConfig {
             return AccountConfig(
                 AccountManager.accounts,
                 AccountManager.current?.name
             )
         }
 
-        override fun AccountConfig.applyConfig() {
+        override fun AccountConfig.apply() {
             for (account in accounts) {
                 AccountManager.addAccount(account)
             }
