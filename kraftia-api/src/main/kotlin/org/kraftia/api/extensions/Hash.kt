@@ -8,7 +8,7 @@ import java.util.*
 import kotlin.io.path.exists
 
 fun Path.needToDownload(hash: String?, algorithm: String = "SHA-1"): Boolean {
-    return (!exists() || !checkFileHash(hash, algorithm))
+    return !exists() || !checkFileHash(hash, algorithm)
 }
 
 fun Path.checkFileHash(other: String?, algorithm: String = "SHA-1"): Boolean {
