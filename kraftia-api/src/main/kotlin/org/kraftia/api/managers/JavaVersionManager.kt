@@ -53,7 +53,7 @@ object JavaVersionManager : JavaVersionContainer {
                 when {
                     it.contains("1.7") -> 7
                     it.contains("1.8") -> 8
-                    else -> it.toInt()
+                    else -> it.split(".")[0].toInt()
                 }
             }
     }
