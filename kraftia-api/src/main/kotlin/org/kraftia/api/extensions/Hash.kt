@@ -7,15 +7,17 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.io.path.exists
 
-fun Path.needToDownload(hash: String?, algorithm: String = "SHA-1"): Boolean {
+const val DEFAULT_ALGORITHM = "SHA-1"
+
+fun Path.needToDownload(hash: String?, algorithm: String = DEFAULT_ALGORITHM): Boolean {
     return !exists() || !checkFileHash(hash, algorithm)
 }
 
-fun Path.checkFileHash(other: String?, algorithm: String = "SHA-1"): Boolean {
+fun Path.checkFileHash(other: String?, algorithm: String = DEFAULT_ALGORITHM): Boolean {
     return hash(algorithm).equals(other, true)
 }
 
-fun Path.hash(algorithm: String = "SHA-1"): String {
+fun Path.hash(algorithm: String = DEFAULT_ALGORITHM): String {
     return FileInputStream(toFile()).use { stream -> stream.hash(algorithm) }
 }
 
