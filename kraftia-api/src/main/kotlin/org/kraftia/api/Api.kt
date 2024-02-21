@@ -26,6 +26,7 @@ import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 import org.kraftia.api.version.downloader.downloaders.VersionDownloader
 import org.kraftia.api.version.serializers.ArgumentsDeserializer
 import java.io.File
+import java.io.IOException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -171,9 +172,14 @@ object Api {
         adapter["assets_index_name"] = version.assets!!
 
         adapter["user_type"] = "msa"
-        adapter["auth_player_name"] = account.name
-        adapter["auth_uuid"] = account.session.uuid
-        adapter["auth_access_token"] = account.session.token
+
+        try {
+            adapter["auth_player_name"] = account.name
+            adapter["auth_uuid"] = account.session.uuid
+            adapter["auth_access_token"] = account.session.token
+        } catch (ex: IOException) {
+            throw IOException("Failed to login to microsoft account. The refresh token may be outdated. Try to remove and add account again. Error message: ${ex.message}")
+        }
 
         adapter["auth_xuid"] = ""
         adapter["clientid"] = ""
