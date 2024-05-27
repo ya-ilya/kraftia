@@ -4,16 +4,16 @@ import org.kraftia.api.Api
 import org.kraftia.api.managers.VersionManager
 import org.kraftia.api.version.downloader.DownloaderProgress.Companion.downloaderProgress
 import org.kraftia.headless.command.AbstractCommand
-import org.kraftia.headless.command.arguments.manifest.VersionManifestArgument
+import org.kraftia.headless.command.arguments.version.VersionArgument
 
 object VersionCommand : AbstractCommand("version", "Manage versions") {
     init {
         builder.then(
             literal("download").then(
-                argument("version", VersionManifestArgument()).execute { context ->
+                argument("version", VersionArgument()).execute { context ->
                     downloaderProgress { progress ->
                         progress.withLoggingThread("VersionDownloader")
-                        Api.versionDownloader.download(progress, VersionManifestArgument[context].id!!)
+                        Api.versionDownloader.download(progress, VersionArgument[context].id!!)
                     }
                 }
             )

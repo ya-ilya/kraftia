@@ -5,7 +5,6 @@ import org.kraftia.api.Api
 import org.kraftia.api.extensions.*
 import org.kraftia.api.managers.VersionManager
 import org.kraftia.api.version.Arguments
-import org.kraftia.api.version.Version
 import org.kraftia.api.version.downloader.DownloaderProgress
 import java.io.File
 import java.nio.file.Path
@@ -15,7 +14,7 @@ import kotlin.io.path.*
 
 @Suppress("MemberVisibilityCanBePrivate")
 class VersionDownloader {
-    data class VersionManifest(
+    data class Version(
         var id: String? = null,
         var type: String? = null,
         var url: String? = null,
@@ -26,7 +25,7 @@ class VersionDownloader {
     )
 
     data class Result(
-        val version: Version,
+        val version: org.kraftia.api.version.Version,
         val classpath: List<Path>,
         val versionBinDirectory: Path
     ) {
@@ -39,10 +38,10 @@ class VersionDownloader {
         private const val MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
         private const val ASSETS_URL = "https://resources.download.minecraft.net"
 
-        val versions: List<VersionManifest> = run {
+        val versions: List<Version> = run {
             get<JsonObject>(MANIFEST_URL)
                 .getAsJsonArray("versions")
-                .map { fromJson<VersionManifest>(it) }
+                .map { fromJson<Version>(it) }
         }
     }
 
@@ -70,7 +69,7 @@ class VersionDownloader {
 
     fun download(
         progress: DownloaderProgress,
-        version: Version
+        version: org.kraftia.api.version.Version
     ): Result {
         if (version.inheritsFrom != null) {
             val parent = downloadVersion(
@@ -143,7 +142,7 @@ class VersionDownloader {
     private fun downloadVersion(
         progress: DownloaderProgress,
         id: String
-    ): Version {
+    ): org.kraftia.api.version.Version {
         val versionManifest = versions.firstOrNull { it.id == id }
             ?: throw IllegalArgumentException("Version $id not found in manifest")
 
@@ -159,12 +158,12 @@ class VersionDownloader {
         }
 
         return VersionManager.getVersionByIdOrNull(id)
-            ?: fromJson<Version>(versionPath.readText())
+            ?: fromJson<org.kraftia.api.version.Version>(versionPath.readText())
     }
 
     private fun downloadLibraries(
         progress: DownloaderProgress,
-        version: Version,
+        version: org.kraftia.api.version.Version,
         versionBinDirectory: Path
     ): List<Path> {
         val classpath = mutableListOf<Path>()
@@ -252,7 +251,7 @@ class VersionDownloader {
 
     private fun downloadGameJar(
         progress: DownloaderProgress,
-        version: Version
+        version: org.kraftia.api.version.Version
     ): Path {
         progress.pushMessage("Downloading game jar...")
 
@@ -272,7 +271,7 @@ class VersionDownloader {
 
     private fun downloadAssets(
         progress: DownloaderProgress,
-        version: Version
+        version: org.kraftia.api.version.Version
     ) {
         val indexPath = path(
             assetsDirectory,

@@ -8,8 +8,8 @@ object HelpCommand : AbstractCommand("help", "Available commands list") {
         builder.execute {
             println("Available commands:")
 
-            for (command in CommandManager.commands) {
-                println("- ${command.name}: ${command.description}")
+            for ((command, usage) in CommandManager.commandUsages) {
+                println("- ${usage}: ${command.description}")
             }
         }
     }

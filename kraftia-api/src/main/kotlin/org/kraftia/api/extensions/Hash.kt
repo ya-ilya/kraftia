@@ -9,7 +9,7 @@ import kotlin.io.path.exists
 
 const val DEFAULT_ALGORITHM = "SHA-1"
 
-fun Path.needToDownload(hash: String?, algorithm: String = DEFAULT_ALGORITHM): Boolean {
+fun Path.needToDownload(hash: String? = null, algorithm: String = DEFAULT_ALGORITHM): Boolean {
     return !exists() || !checkFileHash(hash, algorithm)
 }
 

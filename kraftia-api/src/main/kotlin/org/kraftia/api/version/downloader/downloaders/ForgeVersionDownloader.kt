@@ -10,7 +10,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 class ForgeVersionDownloader {
-    data class VersionManifest(val version: String) {
+    data class Version(val version: String) {
         val installers by lazy {
             FORGE_ENTRY_REGEX
                 .findAll(get("${FORGE_URL}index_$version.html").body.string().replace("\n", ""))
@@ -46,10 +46,10 @@ class ForgeVersionDownloader {
         private val FORGE_VERSION_PAGE_REGEX =
             "<a href=\"index_(.*?).html\">.*?</a>".toRegex()
 
-        val versions: List<VersionManifest> = run {
+        val versions: List<Version> = run {
             FORGE_VERSION_PAGE_REGEX.findAll(get(FORGE_URL).body.string()).toList()
                 .map { matchResult -> matchResult.groupValues[1] }
-                .map { VersionManifest(it) }
+                .map { Version(it) }
         }
     }
 

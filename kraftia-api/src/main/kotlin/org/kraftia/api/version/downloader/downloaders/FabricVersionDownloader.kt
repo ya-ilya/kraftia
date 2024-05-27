@@ -12,7 +12,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 class FabricVersionDownloader {
-    data class VersionManifest(
+    data class Version(
         val version: String,
         val stable: Boolean
     )
@@ -33,9 +33,9 @@ class FabricVersionDownloader {
         private const val INSTALLERS_URL = "https://meta.fabricmc.net/v2/versions/installer"
         private const val LOADERS_URL = "https://meta.fabricmc.net/v2/versions/loader"
 
-        val versions: List<VersionManifest> = run {
+        val versions: List<Version> = run {
             get<JsonArray>(MANIFEST_URL)
-                .map { fromJson<VersionManifest>(it) }
+                .map { fromJson<Version>(it) }
         }
 
         val installers: List<Installer> = run {
@@ -52,16 +52,11 @@ class FabricVersionDownloader {
     fun download(
         progress: DownloaderProgress,
         id: String,
-        installerVersion: String? = null,
         loaderVersion: String? = null
     ) {
         progress.pushMessage("Downloading $id fabric version")
 
-        val installer = if (installerVersion != null) {
-            installers.first { it.version == installerVersion }
-        } else {
-            installers.first { it.stable }
-        }
+        val installer = installers.first { it.stable }
 
         val installerPath = path(
             Api.launcherDirectory,

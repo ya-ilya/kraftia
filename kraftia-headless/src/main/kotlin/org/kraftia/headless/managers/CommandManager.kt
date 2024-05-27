@@ -10,6 +10,12 @@ object CommandManager : CommandContainer {
 
     private val dispatcher = CommandDispatcher<Any>()
 
+    val commandUsages: Map<AbstractCommand, String> get() {
+        return dispatcher.getSmartUsage(dispatcher.root, Any())
+            .mapKeys { getCommandByName(it.key.name) }
+            .toSortedMap(compareBy { it.name })
+    }
+
     override fun addCommand(command: AbstractCommand) {
         dispatcher.register(command.builder)
         super.addCommand(command)
