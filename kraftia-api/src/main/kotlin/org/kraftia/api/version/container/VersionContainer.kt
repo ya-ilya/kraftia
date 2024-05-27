@@ -5,6 +5,8 @@ import org.kraftia.api.version.Version
 interface VersionContainer {
     val versions: MutableSet<Version>
 
+    fun updateVersions()
+
     fun getVersionById(id: String): Version {
         return getVersionByIdOrNull(id)!!
     }

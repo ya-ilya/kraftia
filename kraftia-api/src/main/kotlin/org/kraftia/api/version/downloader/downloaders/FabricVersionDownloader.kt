@@ -13,36 +13,55 @@ import kotlin.io.path.exists
 
 class FabricVersionDownloader {
     data class VersionManifest(
-        val version: String? = null,
-        val stable: Boolean? = null
+        val version: String,
+        val stable: Boolean
     )
 
     data class Installer(
-        val url: String? = null,
-        val version: String? = null
+        val url: String,
+        val version: String,
+        val stable: Boolean
+    )
+
+    data class Loader(
+        val version: String,
+        val stable: Boolean
     )
 
     companion object {
         private const val MANIFEST_URL = "https://meta.fabricmc.net/v2/versions/game"
         private const val INSTALLERS_URL = "https://meta.fabricmc.net/v2/versions/installer"
+        private const val LOADERS_URL = "https://meta.fabricmc.net/v2/versions/loader"
 
         val versions: List<VersionManifest> = run {
             get<JsonArray>(MANIFEST_URL)
                 .map { fromJson<VersionManifest>(it) }
         }
 
-        val installer: Installer = run {
-            fromJson<Installer>(
-                get<JsonArray>(INSTALLERS_URL).first()
-            )
+        val installers: List<Installer> = run {
+            get<JsonArray>(INSTALLERS_URL)
+                .map { fromJson<Installer>(it) }
+        }
+
+        val loaders: List<Loader> = run {
+            get<JsonArray>(LOADERS_URL)
+                .map { fromJson<Loader>(it) }
         }
     }
 
     fun download(
         progress: DownloaderProgress,
-        id: String
+        id: String,
+        installerVersion: String? = null,
+        loaderVersion: String? = null
     ) {
         progress.pushMessage("Downloading $id fabric version")
+
+        val installer = if (installerVersion != null) {
+            installers.first { it.version == installerVersion }
+        } else {
+            installers.first { it.stable }
+        }
 
         val installerPath = path(
             Api.launcherDirectory,
@@ -51,10 +70,16 @@ class FabricVersionDownloader {
 
         if (!installerPath.exists()) {
             org.kraftia.api.extensions.download(
-                url = installer.url!!,
+                url = installer.url,
                 path = installerPath,
                 progress = progress
             )
+        }
+
+        val loader = if (loaderVersion != null) {
+            loaders.first { it.version == loaderVersion }
+        } else {
+            loaders.first { it.stable }
         }
 
         val process = ProcessBuilder()
@@ -67,7 +92,9 @@ class FabricVersionDownloader {
                 "-dir",
                 Api.minecraftDirectory.absolutePathString(),
                 "-mcversion",
-                id
+                id,
+                "-loader",
+                loader.version
             )
             .redirectInput(ProcessBuilder.Redirect.INHERIT)
             .redirectOutput(ProcessBuilder.Redirect.INHERIT)
@@ -77,6 +104,6 @@ class FabricVersionDownloader {
             progress.pushMessage("Failed to install fabric $id")
         }
 
-        VersionManager.update()
+        VersionManager.updateVersions()
     }
 }

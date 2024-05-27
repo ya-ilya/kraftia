@@ -13,7 +13,7 @@ object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
                 argument("version", FabricVersionManifestArgument()).execute { context ->
                     downloaderProgress { progress ->
                         progress.withLoggingThread("VersionDownloader")
-                        Api.fabricVersionDownloader.download(progress, FabricVersionManifestArgument[context].version!!)
+                        Api.fabricVersionDownloader.download(progress, FabricVersionManifestArgument[context].version)
                     }
                 }
             )

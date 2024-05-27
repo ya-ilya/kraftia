@@ -14,12 +14,7 @@ import java.util.jar.JarFile
 import kotlin.io.path.*
 
 @Suppress("MemberVisibilityCanBePrivate")
-class VersionDownloader(
-    val versionsDirectory: Path,
-    val librariesDirectory: Path,
-    val binDirectory: Path,
-    val assetsDirectory: Path
-) {
+class VersionDownloader {
     data class VersionManifest(
         var id: String? = null,
         var type: String? = null,
@@ -36,7 +31,7 @@ class VersionDownloader(
         val versionBinDirectory: Path
     ) {
         init {
-            VersionManager.update()
+            VersionManager.updateVersions()
         }
     }
 
@@ -50,6 +45,11 @@ class VersionDownloader(
                 .map { fromJson<VersionManifest>(it) }
         }
     }
+
+    val versionsDirectory = path(Api.minecraftDirectory, "versions")
+    val librariesDirectory = path(Api.minecraftDirectory, "libraries")
+    val binDirectory = path(Api.launcherDirectory, "bin")
+    val assetsDirectory = path(Api.minecraftDirectory, "assets")
 
     init {
         versionsDirectory.createDirectories()
@@ -85,7 +85,7 @@ class VersionDownloader(
                 parent
             ).classpath.toMutableList()
 
-            progress.pushMessage("Downloading ${version.id} version")
+            progress.pushMessage("Downloading ${version.id} version libraries")
 
             for (library in downloadLibraries(progress, version, parentBinDirectory)) {
                 classpath.add(library)
@@ -95,6 +95,7 @@ class VersionDownloader(
 
             return Result(
                 parent.copy(
+                    inheritsFrom = version.inheritsFrom,
                     id = version.id,
                     time = version.time,
                     releaseTime = version.releaseTime,
@@ -200,7 +201,7 @@ class VersionDownloader(
                     artifact.path!!.replace("/", File.separator)
                 )
 
-                if (libraryPath.needToDownload(artifact.sha1)) {
+                if (libraryPath.needToDownload(artifact.sha1) && artifact.url?.startsWith("http") == true) {
                     download(
                         url = artifact.url!!,
                         path = libraryPath,

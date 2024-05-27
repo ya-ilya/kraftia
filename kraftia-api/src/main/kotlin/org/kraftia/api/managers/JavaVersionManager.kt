@@ -7,7 +7,7 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
 object JavaVersionManager : JavaVersionContainer {
-    private val javaVersionRegex = "version \"(.*?)\"".toRegex()
+    private val JAVA_VERSION_REGEX = "version \"(.*?)\"".toRegex()
 
     override val javaVersions = mutableSetOf<JavaVersion>()
 
@@ -46,7 +46,7 @@ object JavaVersionManager : JavaVersionContainer {
             .command(path.absolutePathString(), "-version")
             .start()
 
-        return javaVersionRegex
+        return JAVA_VERSION_REGEX
             .find(process.errorStream.reader().readText())!!
             .groupValues[1]
             .let {
@@ -55,7 +55,7 @@ object JavaVersionManager : JavaVersionContainer {
                     it.contains("1.8") -> 8
                     else -> try {
                         it.split(".")[0].toInt()
-                    } catch (ex: Exception){
+                    } catch (ex: Exception) {
                         8
                     }
                 }

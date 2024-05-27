@@ -28,14 +28,15 @@ import org.kraftia.api.version.serializers.ArgumentsDeserializer
 import java.io.File
 import java.io.IOException
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
+import kotlin.io.path.writeText
 
 object Api {
     val operatingSystem = OperatingSystem.current
-    val launcherDirectory: Path = Paths.get("kraftia")
+    val launcherDirectory: Path = path("kraftia")
     val minecraftDirectory: Path = operatingSystem.minecraftDirectory
     val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
 
@@ -64,12 +65,16 @@ object Api {
 
     val fabricVersionDownloader = FabricVersionDownloader()
     val forgeVersionDownloader = ForgeVersionDownloader()
-    val versionDownloader = VersionDownloader(
-        path(minecraftDirectory, "versions"),
-        path(minecraftDirectory, "libraries"),
-        path(launcherDirectory, "bin"),
-        path(minecraftDirectory, "assets")
-    )
+    val versionDownloader = VersionDownloader()
+
+    init {
+        val launcherProfiles = path(minecraftDirectory, "launcher_profiles.json")
+
+        if (!launcherProfiles.exists()) {
+            launcherProfiles.createFile()
+            launcherProfiles.writeText("{ \"profiles\": { } }")
+        }
+    }
 
     init {
         AccountManager
@@ -99,6 +104,18 @@ object Api {
             versionDownloader.download(progress, version)
         }
 
+        val missingClasspath = resultClasspath.filter { !it.exists() }
+
+        if (missingClasspath.isNotEmpty()) {
+            println("Missing classpath:")
+
+            for (classpath in missingClasspath) {
+                println("- ${classpath.absolutePathString()}")
+            }
+
+            throw RuntimeException()
+        }
+
         val command = mutableListOf(
             JavaVersionManager.current?.executable ?: "java",
             "-Djava.library.path=${resultBinDirectory.absolutePathString()}",
@@ -108,6 +125,7 @@ object Api {
                 resultVersion.arguments!!.jvm,
                 resultVersion,
                 account,
+                minecraftDirectory,
                 resultBinDirectory,
                 features
             ).toTypedArray(),
@@ -116,6 +134,7 @@ object Api {
                 resultVersion.arguments!!.game,
                 resultVersion,
                 account,
+                minecraftDirectory,
                 resultBinDirectory,
                 features
             ).toTypedArray()
@@ -134,6 +153,7 @@ object Api {
         arguments: List<Arguments.Argument>,
         version: Version,
         account: MinecraftAccount,
+        gameDirectory: Path,
         versionBinDirectory: Path,
         features: Map<String, Boolean>
     ): List<String> {
@@ -156,7 +176,7 @@ object Api {
         adapter.remove("\${classpath}")
         adapter.remove("-Djava.library.path\\u003d\${natives_directory}")
 
-        adapter["game_directory"] = minecraftDirectory.absolutePathString()
+        adapter["game_directory"] = gameDirectory.absolutePathString()
         adapter["natives_directory"] = versionBinDirectory.absolutePathString()
         adapter["library_directory"] = versionDownloader.librariesDirectory.absolutePathString()
         adapter["assets_root"] = versionDownloader.assetsDirectory.absolutePathString()
