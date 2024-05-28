@@ -3,9 +3,8 @@ package org.kraftia.api
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import me.liuli.elixir.account.MicrosoftAccount
-import me.liuli.elixir.account.MinecraftAccount
 import okhttp3.OkHttpClient
+import org.kraftia.api.account.Account
 import org.kraftia.api.config.configs.AccountConfig
 import org.kraftia.api.config.configs.AccountConfig.Companion.apply
 import org.kraftia.api.config.configs.AccountConfig.Companion.write
@@ -39,13 +38,6 @@ object Api {
     val launcherDirectory: Path = path("kraftia")
     val minecraftDirectory: Path = operatingSystem.minecraftDirectory
     val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
-
-    val AUTH = MicrosoftAccount.AuthMethod(
-        "d61d878d-79b6-455e-9b65-5d94d8416aad",
-        "http://localhost:1919/login",
-        "XboxLive.signin%20offline_access",
-        "d=<access_token>"
-    ).also { MicrosoftAccount.AuthMethod.registry["CUSTOM"] = it }
 
     val HTTP = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
@@ -94,10 +86,10 @@ object Api {
 
     fun launch(
         version: Version,
-        account: MinecraftAccount,
+        account: Account,
         features: Map<String, Boolean> = emptyMap()
     ): Process {
-        println("Launching ${version.id} using ${account.name} account")
+        println("Launching ${version.id} using ${account.username} account")
 
         val (resultVersion, resultClasspath, resultBinDirectory) = downloaderProgress { progress ->
             progress.withLoggingThread("VersionDownloader")
@@ -152,7 +144,7 @@ object Api {
     private fun arguments(
         arguments: List<Arguments.Argument>,
         version: Version,
-        account: MinecraftAccount,
+        account: Account,
         gameDirectory: Path,
         versionBinDirectory: Path,
         features: Map<String, Boolean>
@@ -194,9 +186,9 @@ object Api {
         adapter["user_type"] = "msa"
 
         try {
-            adapter["auth_player_name"] = account.name
-            adapter["auth_uuid"] = account.session.uuid
-            adapter["auth_access_token"] = account.session.token
+            adapter["auth_player_name"] = account.username
+            adapter["auth_uuid"] = account.uuid
+            adapter["auth_access_token"] = (account as? Account.Microsoft)?.accessToken ?: ""
         } catch (ex: IOException) {
             throw IOException("Failed to login to microsoft account. The refresh token may be outdated. Try to remove and add account again. Error message: ${ex.message}")
         }

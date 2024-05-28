@@ -10,11 +10,11 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
         builder.then(
             literal("add")
                 .then(
-                    literal("cracked").then(
-                        argument("name", StringArgumentType.string()).execute { context ->
-                            val account = AccountManager.loginCracked(StringArgumentType.getString(context, "name"))
+                    literal("offline").then(
+                        argument("username", StringArgumentType.string()).execute { context ->
+                            val account = AccountManager.loginCracked(StringArgumentType.getString(context, "username"))
 
-                            println("Login in as ${account.name}")
+                            println("Login in as ${account.username}")
                         }
                     )
                 )
@@ -23,7 +23,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
                         val account = AccountManager.loginMicrosoft()
 
                         if (account != null) {
-                            println("Login in as ${account.name}")
+                            println("Login in as ${account.username}")
                         } else {
                             println("Failed to login with microsoft account")
                         }
@@ -35,7 +35,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
             literal("set").then(
                 argument("account", AccountArgument()).execute { context ->
                     AccountManager.current = AccountArgument[context]
-                    println("Account switched to ${AccountManager.current!!.name} account")
+                    println("Account switched to ${AccountManager.current!!.username} account")
                 }
             )
         )
@@ -46,7 +46,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
                     val account = AccountArgument[context]
 
                     AccountManager.removeAccount(account)
-                    println("Removed ${account.name} account")
+                    println("Removed ${account.username} account")
                 }
             )
         )
@@ -56,7 +56,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
                 println("Accounts:")
 
                 for (account in AccountManager.accounts) {
-                    println("- [${account.javaClass.simpleName.first()}] ${account.name}")
+                    println("- [${account.javaClass.simpleName.first()}] ${account.username}")
                 }
             }
         )
@@ -64,7 +64,7 @@ object AccountCommand : AbstractCommand("account", "Manage accounts") {
         builder.execute {
             AccountManager.current.also {
                 if (it != null) {
-                    println("Current account: [${it.javaClass.simpleName.first()}] ${it.name}")
+                    println("Current account: [${it.javaClass.simpleName.first()}] ${it.username}")
                 } else {
                     println("You are not logged in")
                 }

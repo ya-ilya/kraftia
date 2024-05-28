@@ -1,22 +1,14 @@
 package org.kraftia.api.managers
 
-import me.liuli.elixir.account.CrackedAccount
-import me.liuli.elixir.account.MicrosoftAccount
-import me.liuli.elixir.account.MinecraftAccount
-import me.liuli.elixir.compat.OAuthServer
-import org.kraftia.api.Api
+import org.kraftia.api.account.Account
+import org.kraftia.api.account.oauth.OAuthServer
 import java.awt.Desktop
 import java.net.URI
-import java.util.concurrent.ThreadPoolExecutor
 
 object AccountManager {
-    private val THREAD_POOL_EXECUTOR_FIELD = OAuthServer::class.java
-        .getDeclaredField("threadPoolExecutor")
-        .also { it.isAccessible = true }
+    val accounts = mutableSetOf<Account>()
 
-    val accounts = mutableSetOf<MinecraftAccount>()
-
-    var current: MinecraftAccount? = null
+    var current: Account? = null
         get() {
             if (field != null && !accounts.contains(field)) {
                 field = null
@@ -26,36 +18,31 @@ object AccountManager {
         }
 
 
-    fun getAccountByName(name: String): MinecraftAccount {
+    fun getAccountByName(name: String): Account {
         return getAccountByNameOrNull(name)!!
     }
 
-    fun getAccountByNameOrNull(name: String): MinecraftAccount? {
-        return accounts.firstOrNull { it.name == name }
+    fun getAccountByNameOrNull(name: String): Account? {
+        return accounts.firstOrNull { it.username == name }
     }
 
-    fun addAccount(account: MinecraftAccount) {
-        accounts.removeIf { it.name == account.name }
+    fun addAccount(account: Account) {
+        accounts.removeIf { it.username == account.username }
         accounts.add(account)
     }
 
-    fun removeAccount(account: MinecraftAccount) {
+    fun removeAccount(account: Account) {
         accounts.remove(account)
     }
 
-    fun loginMicrosoft(): MinecraftAccount? {
-        var result: MicrosoftAccount? = null
-
-        val server = MicrosoftAccount.buildFromOpenBrowser(object : MicrosoftAccount.OAuthHandler {
-            override fun authError(error: String) {
-                println("Microsoft auth error: $error")
+    fun loginMicrosoft(): Account.Microsoft? {
+        var result: Account.Microsoft? = null
+        val server = object : OAuthServer() {
+            init {
+                start()
             }
 
-            override fun authResult(account: MicrosoftAccount) {
-                result = account
-            }
-
-            override fun openUrl(url: String) {
+            override fun onStart(url: String) {
                 println("Trying to open $url")
 
                 if (Desktop.isDesktopSupported()) {
@@ -69,13 +56,20 @@ object AccountManager {
                 }
             }
 
-        }, Api.AUTH)
+            override fun onLogin(account: Account.Microsoft) {
+                result = account
+            }
 
-        val threadPoolExecutor = THREAD_POOL_EXECUTOR_FIELD.get(server) as ThreadPoolExecutor
+            override fun onError(message: String) {
+                result = null
+            }
+        }
 
-        while (!threadPoolExecutor.isShutdown) {
+        while (!server.isShutdown && !Thread.currentThread().isInterrupted) {
             // Server
         }
+
+        server.stop()
 
         return result?.also {
             addAccount(it)
@@ -83,9 +77,8 @@ object AccountManager {
         }
     }
 
-    fun loginCracked(name: String): MinecraftAccount {
-        return CrackedAccount().also {
-            it.name = name
+    fun loginCracked(name: String): Account.Offline {
+        return Account.Offline(name).also {
             addAccount(it)
             current = it
         }

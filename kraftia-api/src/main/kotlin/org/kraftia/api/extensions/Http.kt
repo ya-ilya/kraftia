@@ -2,6 +2,7 @@ package org.kraftia.api.extensions
 
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.kraftia.api.Api
 import org.kraftia.api.version.downloader.DownloaderProgress
@@ -24,6 +25,30 @@ fun get(
 ): Response {
     val request = Request.Builder()
         .get()
+        .url(url)
+        .headers(headers.toHeaders())
+        .build()
+
+    return Api.HTTP
+        .newCall(request)
+        .execute()
+}
+
+inline fun <reified T> post(
+    url: String,
+    data: String,
+    headers: Map<String, String> = emptyMap()
+): T {
+    return fromJson(post(url, data, headers).body.string())
+}
+
+fun post(
+    url: String,
+    data: String,
+    headers: Map<String, String> = emptyMap()
+): Response {
+    val request = Request.Builder()
+        .post(data.toRequestBody())
         .url(url)
         .headers(headers.toHeaders())
         .build()

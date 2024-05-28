@@ -1,23 +1,22 @@
 package org.kraftia.api.config.configs
 
 import com.google.gson.*
-import me.liuli.elixir.account.MinecraftAccount
-import me.liuli.elixir.manage.AccountSerializer
-import me.liuli.elixir.utils.set
+import org.kraftia.api.account.Account
+import org.kraftia.api.account.serializers.AccountSerializer
 import org.kraftia.api.config.AbstractConfig
 import org.kraftia.api.config.AbstractConfigClass
 import org.kraftia.api.managers.AccountManager
 import java.lang.reflect.Type
 
 class AccountConfig(
-    private val accounts: Set<MinecraftAccount> = emptySet(),
+    private val accounts: Set<Account> = emptySet(),
     private val current: String? = null
 ) : AbstractConfig("account") {
     companion object : AbstractConfigClass<AccountConfig>("accounts", AccountConfig::class) {
         override fun create(): AccountConfig {
             return AccountConfig(
                 AccountManager.accounts,
-                AccountManager.current?.name
+                AccountManager.current?.username
             )
         }
 
@@ -32,17 +31,13 @@ class AccountConfig(
         override fun serialize(src: AccountConfig, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
             val jsonObject = JsonObject()
 
-            jsonObject["accounts"] = src.accounts.map { AccountSerializer.toJson(it) }.let {
-                val array = JsonArray()
-
-                for (account in it) {
-                    array.add(account)
+            jsonObject.add("accounts", JsonArray().apply {
+                for (account in src.accounts.map { AccountSerializer.serialize(it, null, null) }) {
+                    add(account)
                 }
+            })
 
-                array
-            }
-
-            if (src.current != null) jsonObject["current"] = src.current
+            if (src.current != null) jsonObject.addProperty("current", src.current)
 
             return jsonObject
         }
@@ -55,7 +50,9 @@ class AccountConfig(
             val jsonObject = json.asJsonObject
 
             return AccountConfig(
-                jsonObject.getAsJsonArray("accounts").map { AccountSerializer.fromJson(it.asJsonObject) }.toSet(),
+                jsonObject.getAsJsonArray("accounts")
+                    .map { AccountSerializer.deserialize(it.asJsonObject, null, null) }
+                    .toSet(),
                 jsonObject.get("current")?.asString
             )
         }
