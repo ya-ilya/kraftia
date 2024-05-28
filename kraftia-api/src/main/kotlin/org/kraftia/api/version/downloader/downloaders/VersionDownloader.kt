@@ -14,7 +14,7 @@ import kotlin.io.path.*
 
 @Suppress("MemberVisibilityCanBePrivate")
 class VersionDownloader {
-    data class Version(
+    data class AvailableVersion(
         var id: String? = null,
         var type: String? = null,
         var url: String? = null,
@@ -38,10 +38,10 @@ class VersionDownloader {
         private const val MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
         private const val ASSETS_URL = "https://resources.download.minecraft.net"
 
-        val versions: List<Version> = run {
+        val versions: List<AvailableVersion> = run {
             get<JsonObject>(MANIFEST_URL)
                 .getAsJsonArray("versions")
-                .map { fromJson<Version>(it) }
+                .map { fromJson<AvailableVersion>(it) }
         }
     }
 

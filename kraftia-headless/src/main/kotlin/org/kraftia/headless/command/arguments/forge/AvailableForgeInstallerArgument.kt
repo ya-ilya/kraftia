@@ -8,15 +8,15 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 
-class ForgeInstallerArgument : ArgumentType<String> {
+class AvailableForgeInstallerArgument : ArgumentType<String> {
     companion object {
         private val NO_SUCH_FORGE_INSTALLER = DynamicCommandExceptionType { name: Any ->
             Message { "Forge installer '$name' not found" }
         }
 
-        operator fun get(context: CommandContext<Any>): ForgeVersionDownloader.Installer {
+        operator fun get(context: CommandContext<Any>): ForgeVersionDownloader.AvailableInstaller {
             val argument = StringArgumentType.getString(context, "installer")
-            val version = ForgeVersionArgument[context]
+            val version = AvailableForgeVersionArgument[context]
 
             return version.installers.firstOrNull { it.id == argument }
                 ?: throw NO_SUCH_FORGE_INSTALLER.create(argument)

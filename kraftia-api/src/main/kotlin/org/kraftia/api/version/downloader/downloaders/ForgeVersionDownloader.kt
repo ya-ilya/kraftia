@@ -18,7 +18,7 @@ class ForgeVersionDownloader {
                 .mapNotNull { it.groupValues.getOrNull(1) }
                 .filter { it.contains("download-version") }
                 .map {
-                    Installer(
+                    AvailableInstaller(
                         it.contains("promo-latest"),
                         FORGE_ENTRY_ID_REGEX.find(it)!!.groupValues[1],
                         FORGE_ENTRY_DOWNLOAD_URL_REGEX.find(it)!!.groupValues[1]
@@ -27,7 +27,7 @@ class ForgeVersionDownloader {
         }
     }
 
-    data class Installer(
+    data class AvailableInstaller(
         val latest: Boolean,
         val id: String,
         val downloadUrl: String

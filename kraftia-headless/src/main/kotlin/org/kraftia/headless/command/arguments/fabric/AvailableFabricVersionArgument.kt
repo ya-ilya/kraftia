@@ -7,18 +7,18 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import org.kraftia.api.version.downloader.downloaders.FabricVersionDownloader
 
-class FabricVersionArgument : ArgumentType<FabricVersionDownloader.Version> {
+class AvailableFabricVersionArgument : ArgumentType<FabricVersionDownloader.AvailableVersion> {
     companion object {
         private val NO_SUCH_FABRIC_VERSION = DynamicCommandExceptionType { name: Any ->
             Message { "Fabric version '$name' not found" }
         }
 
-        operator fun get(context: CommandContext<Any>): FabricVersionDownloader.Version {
-            return context.getArgument("version", FabricVersionDownloader.Version::class.java)
+        operator fun get(context: CommandContext<Any>): FabricVersionDownloader.AvailableVersion {
+            return context.getArgument("version", FabricVersionDownloader.AvailableVersion::class.java)
         }
     }
 
-    override fun parse(reader: StringReader): FabricVersionDownloader.Version {
+    override fun parse(reader: StringReader): FabricVersionDownloader.AvailableVersion {
         val argument = reader.readString()
 
         return FabricVersionDownloader.versions.firstOrNull { it.version == argument }

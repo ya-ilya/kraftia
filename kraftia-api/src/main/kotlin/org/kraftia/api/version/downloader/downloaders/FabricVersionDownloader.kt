@@ -12,18 +12,18 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 class FabricVersionDownloader {
-    data class Version(
+    data class AvailableVersion(
         val version: String,
         val stable: Boolean
     )
 
-    data class Installer(
+    data class AvailableInstaller(
         val url: String,
         val version: String,
         val stable: Boolean
     )
 
-    data class Loader(
+    data class AvailableLoader(
         val version: String,
         val stable: Boolean
     )
@@ -33,19 +33,19 @@ class FabricVersionDownloader {
         private const val INSTALLERS_URL = "https://meta.fabricmc.net/v2/versions/installer"
         private const val LOADERS_URL = "https://meta.fabricmc.net/v2/versions/loader"
 
-        val versions: List<Version> = run {
+        val versions: List<AvailableVersion> = run {
             get<JsonArray>(MANIFEST_URL)
-                .map { fromJson<Version>(it) }
+                .map { fromJson<AvailableVersion>(it) }
         }
 
-        val installers: List<Installer> = run {
+        val installers: List<AvailableInstaller> = run {
             get<JsonArray>(INSTALLERS_URL)
-                .map { fromJson<Installer>(it) }
+                .map { fromJson<AvailableInstaller>(it) }
         }
 
-        val loaders: List<Loader> = run {
+        val loaders: List<AvailableLoader> = run {
             get<JsonArray>(LOADERS_URL)
-                .map { fromJson<Loader>(it) }
+                .map { fromJson<AvailableLoader>(it) }
         }
     }
 

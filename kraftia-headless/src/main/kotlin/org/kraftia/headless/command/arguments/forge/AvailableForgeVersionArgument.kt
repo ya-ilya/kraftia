@@ -7,7 +7,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 
-class ForgeVersionArgument : ArgumentType<ForgeVersionDownloader.Version> {
+class AvailableForgeVersionArgument : ArgumentType<ForgeVersionDownloader.Version> {
     companion object {
         private val NO_SUCH_FORGE_VERSION = DynamicCommandExceptionType { name: Any ->
             Message { "Forge version '$name' not found" }

@@ -4,8 +4,8 @@ import org.kraftia.api.Api
 import org.kraftia.api.version.downloader.DownloaderProgress.Companion.downloaderProgress
 import org.kraftia.api.version.downloader.downloaders.FabricVersionDownloader
 import org.kraftia.headless.command.AbstractCommand
-import org.kraftia.headless.command.arguments.fabric.FabricLoaderArgument
-import org.kraftia.headless.command.arguments.fabric.FabricVersionArgument
+import org.kraftia.headless.command.arguments.fabric.AvailableFabricLoaderArgument
+import org.kraftia.headless.command.arguments.fabric.AvailableFabricVersionArgument
 
 object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
     init {
@@ -21,11 +21,11 @@ object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
 
         builder.then(
             literal("download").then(
-                argument("version", FabricVersionArgument())
+                argument("version", AvailableFabricVersionArgument())
                     .then(
-                        argument("loader", FabricLoaderArgument()).execute { context ->
-                            val version = FabricVersionArgument[context].version
-                            val loader = FabricLoaderArgument[context].version
+                        argument("loader", AvailableFabricLoaderArgument()).execute { context ->
+                            val version = AvailableFabricVersionArgument[context].version
+                            val loader = AvailableFabricLoaderArgument[context].version
 
                             downloaderProgress { progress ->
                                 progress.withLoggingThread("VersionDownloader")
@@ -42,7 +42,7 @@ object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
                             progress.withLoggingThread("VersionDownloader")
                             Api.fabricVersionDownloader.download(
                                 progress,
-                                id = FabricVersionArgument[context].version
+                                id = AvailableFabricVersionArgument[context].version
                             )
                         }
                     }

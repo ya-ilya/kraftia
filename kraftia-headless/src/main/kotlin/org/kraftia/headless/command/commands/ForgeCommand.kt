@@ -4,15 +4,15 @@ import org.kraftia.api.Api
 import org.kraftia.api.version.downloader.DownloaderProgress.Companion.downloaderProgress
 import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 import org.kraftia.headless.command.AbstractCommand
-import org.kraftia.headless.command.arguments.forge.ForgeInstallerArgument
-import org.kraftia.headless.command.arguments.forge.ForgeVersionArgument
+import org.kraftia.headless.command.arguments.forge.AvailableForgeInstallerArgument
+import org.kraftia.headless.command.arguments.forge.AvailableForgeVersionArgument
 
 object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
     init {
         builder.then(
             literal("installers").then(
-                argument("version", ForgeVersionArgument()).execute { context ->
-                    val version = ForgeVersionArgument[context]
+                argument("version", AvailableForgeVersionArgument()).execute { context ->
+                    val version = AvailableForgeVersionArgument[context]
 
                     println("Available ${version.version} forge installers:")
 
@@ -25,11 +25,11 @@ object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
 
         builder.then(
             literal("download").then(
-                argument("version", ForgeVersionArgument())
+                argument("version", AvailableForgeVersionArgument())
                     .then(
-                        argument("installer", ForgeInstallerArgument()).execute { context ->
-                            val version = ForgeVersionArgument[context]
-                            val installer = ForgeInstallerArgument[context]
+                        argument("installer", AvailableForgeInstallerArgument()).execute { context ->
+                            val version = AvailableForgeVersionArgument[context]
+                            val installer = AvailableForgeInstallerArgument[context]
 
                             downloaderProgress { progress ->
                                 progress.withLoggingThread("VersionDownloader")
@@ -46,7 +46,7 @@ object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
                             progress.withLoggingThread("VersionDownloader")
                             Api.forgeVersionDownloader.download(
                                 progress,
-                                id = ForgeVersionArgument[context].version
+                                id = AvailableForgeVersionArgument[context].version
                             )
                         }
                     }
