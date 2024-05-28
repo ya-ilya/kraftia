@@ -9,8 +9,8 @@ import org.kraftia.api.version.downloader.downloaders.FabricVersionDownloader
 
 class FabricVersionArgument : ArgumentType<FabricVersionDownloader.Version> {
     companion object {
-        private val NO_SUCH_FABRIC_VERSION_MANIFEST = DynamicCommandExceptionType { name: Any ->
-            Message { "Fabric version manifest '$name' not found" }
+        private val NO_SUCH_FABRIC_VERSION = DynamicCommandExceptionType { name: Any ->
+            Message { "Fabric version '$name' not found" }
         }
 
         operator fun get(context: CommandContext<Any>): FabricVersionDownloader.Version {
@@ -22,6 +22,6 @@ class FabricVersionArgument : ArgumentType<FabricVersionDownloader.Version> {
         val argument = reader.readString()
 
         return FabricVersionDownloader.versions.firstOrNull { it.version == argument }
-            ?: throw NO_SUCH_FABRIC_VERSION_MANIFEST.create(argument)
+            ?: throw NO_SUCH_FABRIC_VERSION.create(argument)
     }
 }

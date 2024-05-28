@@ -9,8 +9,8 @@ import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 
 class ForgeVersionArgument : ArgumentType<ForgeVersionDownloader.Version> {
     companion object {
-        private val NO_SUCH_FORGE_VERSION_MANIFEST = DynamicCommandExceptionType { name: Any ->
-            Message { "Forge version manifest '$name' not found" }
+        private val NO_SUCH_FORGE_VERSION = DynamicCommandExceptionType { name: Any ->
+            Message { "Forge version '$name' not found" }
         }
 
         operator fun get(context: CommandContext<Any>): ForgeVersionDownloader.Version {
@@ -22,6 +22,6 @@ class ForgeVersionArgument : ArgumentType<ForgeVersionDownloader.Version> {
         val argument = reader.readString()
 
         return ForgeVersionDownloader.versions.firstOrNull { it.version == argument }
-            ?: throw NO_SUCH_FORGE_VERSION_MANIFEST.create(argument)
+            ?: throw NO_SUCH_FORGE_VERSION.create(argument)
     }
 }
