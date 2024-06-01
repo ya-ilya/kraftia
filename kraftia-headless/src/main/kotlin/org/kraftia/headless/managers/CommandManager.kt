@@ -12,7 +12,8 @@ object CommandManager : CommandContainer {
 
     val commandUsages: Map<AbstractCommand, String>
         get() {
-            return dispatcher.getSmartUsage(dispatcher.root, Any())
+            return dispatcher
+                .getSmartUsage(dispatcher.root, Any())
                 .mapKeys { getCommandByName(it.key.name) }
                 .toSortedMap(compareBy { it.name })
         }
@@ -34,5 +35,11 @@ object CommandManager : CommandContainer {
         } catch (ex: Exception) {
             println("[ERROR] Failed to execute command: (${ex.javaClass.simpleName}) ${ex.message}")
         }
+    }
+
+    fun getAllCommandUsages(command: AbstractCommand): List<String> {
+        return dispatcher
+            .getAllUsage(dispatcher.findNode(listOf(command.name)), Any(), false)
+            .toList()
     }
 }

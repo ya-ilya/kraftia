@@ -1,6 +1,6 @@
-package org.kraftia.api.java.container
+package org.kraftia.api.javaVersion.container
 
-import org.kraftia.api.java.JavaVersion
+import org.kraftia.api.javaVersion.JavaVersion
 
 interface JavaVersionContainer {
     val javaVersions: MutableSet<JavaVersion>

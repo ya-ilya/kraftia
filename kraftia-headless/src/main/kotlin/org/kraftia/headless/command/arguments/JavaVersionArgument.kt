@@ -5,7 +5,7 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
-import org.kraftia.api.java.JavaVersion
+import org.kraftia.api.javaVersion.JavaVersion
 import org.kraftia.api.managers.JavaVersionManager
 
 class JavaVersionArgument : ArgumentType<JavaVersion> {

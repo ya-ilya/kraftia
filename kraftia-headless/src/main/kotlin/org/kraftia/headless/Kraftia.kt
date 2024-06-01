@@ -13,6 +13,7 @@ fun main() {
     CommandManager.addCommand(FabricCommand)
     CommandManager.addCommand(ForgeCommand)
     CommandManager.addCommand(HelpCommand)
+    CommandManager.addCommand(InstanceCommand)
     CommandManager.addCommand(JavaCommand)
     CommandManager.addCommand(LaunchCommand)
     CommandManager.addCommand(VersionCommand)

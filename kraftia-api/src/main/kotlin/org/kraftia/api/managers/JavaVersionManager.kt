@@ -1,8 +1,8 @@
 package org.kraftia.api.managers
 
 import org.kraftia.api.Api
-import org.kraftia.api.java.JavaVersion
-import org.kraftia.api.java.container.JavaVersionContainer
+import org.kraftia.api.javaVersion.JavaVersion
+import org.kraftia.api.javaVersion.container.JavaVersionContainer
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 

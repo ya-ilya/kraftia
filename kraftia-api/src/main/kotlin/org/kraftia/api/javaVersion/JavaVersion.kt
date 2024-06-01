@@ -1,4 +1,4 @@
-package org.kraftia.api.java
+package org.kraftia.api.javaVersion
 
 data class JavaVersion(
     val versionNumber: Int,

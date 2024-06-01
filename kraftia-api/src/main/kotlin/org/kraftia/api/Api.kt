@@ -8,12 +8,16 @@ import org.kraftia.api.account.Account
 import org.kraftia.api.config.configs.AccountConfig
 import org.kraftia.api.config.configs.AccountConfig.Companion.apply
 import org.kraftia.api.config.configs.AccountConfig.Companion.write
+import org.kraftia.api.config.configs.InstanceConfig
+import org.kraftia.api.config.configs.InstanceConfig.Companion.apply
+import org.kraftia.api.config.configs.InstanceConfig.Companion.write
 import org.kraftia.api.config.configs.JavaVersionConfig
 import org.kraftia.api.config.configs.JavaVersionConfig.Companion.apply
 import org.kraftia.api.config.configs.JavaVersionConfig.Companion.write
 import org.kraftia.api.extensions.checkRules
 import org.kraftia.api.extensions.path
 import org.kraftia.api.extensions.resourceJson
+import org.kraftia.api.instance.Instance
 import org.kraftia.api.managers.AccountManager
 import org.kraftia.api.managers.JavaVersionManager
 import org.kraftia.api.managers.VersionManager
@@ -23,19 +27,17 @@ import org.kraftia.api.version.downloader.DownloaderProgress.Companion.downloade
 import org.kraftia.api.version.downloader.downloaders.FabricVersionDownloader
 import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 import org.kraftia.api.version.downloader.downloaders.VersionDownloader
-import org.kraftia.api.version.serializers.ArgumentsDeserializer
+import org.kraftia.api.version.serializers.ArgumentSerializer
 import java.io.File
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.createFile
-import kotlin.io.path.exists
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
 object Api {
     val operatingSystem = OperatingSystem.current
     val launcherDirectory: Path = path("kraftia")
+    val instancesDirectory: Path = path(launcherDirectory, "instances")
     val minecraftDirectory: Path = operatingSystem.minecraftDirectory
     val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
 
@@ -46,8 +48,9 @@ object Api {
 
     val GSON: Gson = GsonBuilder()
         .setPrettyPrinting()
-        .registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer)
+        .registerTypeAdapter(Arguments::class.java, ArgumentSerializer)
         .registerTypeAdapter(AccountConfig::class.java, AccountConfig)
+        .registerTypeAdapter(InstanceConfig::class.java, InstanceConfig)
         .registerTypeAdapter(JavaVersionConfig::class.java, JavaVersionConfig)
         .create()
 
@@ -60,6 +63,8 @@ object Api {
     val versionDownloader = VersionDownloader()
 
     init {
+        instancesDirectory.createDirectories()
+
         val launcherProfiles = path(minecraftDirectory, "launcher_profiles.json")
 
         if (!launcherProfiles.exists()) {
@@ -76,24 +81,26 @@ object Api {
 
     fun configs() {
         AccountConfig.read().apply()
+        InstanceConfig.read().apply()
         JavaVersionConfig.read().apply()
 
         Runtime.getRuntime().addShutdownHook(Thread {
             AccountConfig.create().write()
+            InstanceConfig.create().write()
             JavaVersionConfig.create().write()
         })
     }
 
     fun launch(
-        version: Version,
+        instance: Instance,
         account: Account,
         features: Map<String, Boolean> = emptyMap()
     ): Process {
-        println("Launching ${version.id} using ${account.username} account")
+        println("Launching ${instance.name} instance (${instance.version}) using ${account.username} account")
 
         val (resultVersion, resultClasspath, resultBinDirectory) = downloaderProgress { progress ->
             progress.withLoggingThread("VersionDownloader")
-            versionDownloader.download(progress, version)
+            versionDownloader.download(progress, VersionManager.getVersionById(instance.version))
         }
 
         val missingClasspath = resultClasspath.filter { !it.exists() }
@@ -108,7 +115,8 @@ object Api {
             throw RuntimeException()
         }
 
-        val command = mutableListOf(
+        val gameDirectory = path(instance.gameDirectory)
+        val command = listOf(
             JavaVersionManager.current?.executable ?: "java",
             "-Djava.library.path=${resultBinDirectory.absolutePathString()}",
             "-cp",
@@ -117,7 +125,7 @@ object Api {
                 resultVersion.arguments!!.jvm,
                 resultVersion,
                 account,
-                minecraftDirectory,
+                gameDirectory,
                 resultBinDirectory,
                 features
             ).toTypedArray(),
@@ -126,7 +134,7 @@ object Api {
                 resultVersion.arguments!!.game,
                 resultVersion,
                 account,
-                minecraftDirectory,
+                gameDirectory,
                 resultBinDirectory,
                 features
             ).toTypedArray()
@@ -136,7 +144,7 @@ object Api {
 
         return ProcessBuilder()
             .command(command)
-            .directory(minecraftDirectory.toFile())
+            .directory(gameDirectory.toFile())
             .inheritIO()
             .start()
     }

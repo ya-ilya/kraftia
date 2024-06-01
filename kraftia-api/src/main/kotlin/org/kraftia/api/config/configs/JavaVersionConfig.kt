@@ -2,13 +2,13 @@ package org.kraftia.api.config.configs
 
 import org.kraftia.api.config.AbstractConfig
 import org.kraftia.api.config.AbstractConfigClass
-import org.kraftia.api.java.JavaVersion
+import org.kraftia.api.javaVersion.JavaVersion
 import org.kraftia.api.managers.JavaVersionManager
 
 class JavaVersionConfig(
     private val javaVersions: Set<JavaVersion> = emptySet(),
     private val current: Int? = null
-) : AbstractConfig("java") {
+) : AbstractConfig() {
     companion object : AbstractConfigClass<JavaVersionConfig>("java", JavaVersionConfig::class) {
         override fun create(): JavaVersionConfig {
             return JavaVersionConfig(

@@ -11,7 +11,7 @@ import java.lang.reflect.Type
 class AccountConfig(
     private val accounts: Set<Account> = emptySet(),
     private val current: String? = null
-) : AbstractConfig("account") {
+) : AbstractConfig() {
     companion object : AbstractConfigClass<AccountConfig>("accounts", AccountConfig::class) {
         override fun create(): AccountConfig {
             return AccountConfig(
@@ -29,17 +29,15 @@ class AccountConfig(
         }
 
         override fun serialize(src: AccountConfig, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
-            val jsonObject = JsonObject()
+            return JsonObject().apply {
+                add("accounts", JsonArray().apply {
+                    for (account in src.accounts) {
+                        add(AccountSerializer.serialize(account, null, null))
+                    }
+                })
 
-            jsonObject.add("accounts", JsonArray().apply {
-                for (account in src.accounts.map { AccountSerializer.serialize(it, null, null) }) {
-                    add(account)
-                }
-            })
-
-            if (src.current != null) jsonObject.addProperty("current", src.current)
-
-            return jsonObject
+                if (src.current != null) addProperty("current", src.current)
+            }
         }
 
         override fun deserialize(

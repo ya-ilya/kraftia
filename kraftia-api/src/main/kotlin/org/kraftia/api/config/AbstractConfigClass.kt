@@ -22,7 +22,7 @@ abstract class AbstractConfigClass<T : AbstractConfig>(
     fun read(): T {
         path.createParentDirectories()
 
-        return if (path.exists()) Api.GSON.fromJson(path.readText(), clazz.java) else create()
+        return if (path.exists()) Api.GSON.fromJson(path.readText(), clazz.java) else create().apply { write() }
     }
 
     fun T.write() {

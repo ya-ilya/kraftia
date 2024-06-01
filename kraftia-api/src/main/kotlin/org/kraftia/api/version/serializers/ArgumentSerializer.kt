@@ -5,7 +5,7 @@ import org.kraftia.api.extensions.fromJson
 import org.kraftia.api.version.Arguments
 import java.lang.reflect.Type
 
-object ArgumentsDeserializer : JsonDeserializer<Arguments> {
+object ArgumentSerializer : JsonDeserializer<Arguments> {
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,

@@ -1,12 +1,13 @@
 package org.kraftia.api.managers
 
 import org.kraftia.api.account.Account
+import org.kraftia.api.account.container.AccountContainer
 import org.kraftia.api.account.oauth.OAuthServer
 import java.awt.Desktop
 import java.net.URI
 
-object AccountManager {
-    val accounts = mutableSetOf<Account>()
+object AccountManager : AccountContainer {
+    override val accounts = mutableSetOf<Account>()
 
     var current: Account? = null
         get() {
@@ -16,24 +17,6 @@ object AccountManager {
 
             return field
         }
-
-
-    fun getAccountByName(name: String): Account {
-        return getAccountByNameOrNull(name)!!
-    }
-
-    fun getAccountByNameOrNull(name: String): Account? {
-        return accounts.firstOrNull { it.username == name }
-    }
-
-    fun addAccount(account: Account) {
-        accounts.removeIf { it.username == account.username }
-        accounts.add(account)
-    }
-
-    fun removeAccount(account: Account) {
-        accounts.remove(account)
-    }
 
     fun loginMicrosoft(): Account.Microsoft? {
         var result: Account.Microsoft? = null
