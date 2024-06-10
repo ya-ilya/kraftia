@@ -7,11 +7,11 @@ import org.kraftia.headless.command.AbstractCommand
 import org.kraftia.headless.command.arguments.fabric.AvailableFabricLoaderArgument
 import org.kraftia.headless.command.arguments.fabric.AvailableFabricVersionArgument
 
-object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
+object FabricCommand : AbstractCommand("fabric", "Manage Fabric versions") {
     init {
         builder.then(
             literal("loaders").execute {
-                println("Available fabric loaders:")
+                println("Available Fabric loaders:")
 
                 for (loader in FabricVersionDownloader.loaders) {
                     println("- ${loader.version}${if (loader.stable) " [Stable]" else ""}")
@@ -28,7 +28,7 @@ object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
                             val loader = AvailableFabricLoaderArgument[context].version
 
                             downloaderProgress { progress ->
-                                progress.withLoggingThread("VersionDownloader")
+                                progress.withLoggingThread("FabricVersionDownloader")
                                 Api.fabricVersionDownloader.download(
                                     progress,
                                     id = version,
@@ -39,7 +39,7 @@ object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
                     )
                     .execute { context ->
                         downloaderProgress { progress ->
-                            progress.withLoggingThread("VersionDownloader")
+                            progress.withLoggingThread("FabricVersionDownloader")
                             Api.fabricVersionDownloader.download(
                                 progress,
                                 id = AvailableFabricVersionArgument[context].version
@@ -51,7 +51,7 @@ object FabricCommand : AbstractCommand("fabric", "Manage fabric versions") {
 
         builder.then(
             literal("list").execute {
-                println("Available fabric versions:")
+                println("Available Fabric versions:")
 
                 for (version in FabricVersionDownloader.versions) {
                     println("- ${version.version}")

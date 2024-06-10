@@ -54,7 +54,7 @@ class FabricVersionDownloader {
         id: String,
         loaderVersion: String? = null
     ) {
-        progress.pushMessage("Downloading $id fabric version")
+        progress.pushMessage("Downloading $id Fabric version")
 
         val installer = installers.first { it.stable }
 
@@ -78,14 +78,14 @@ class FabricVersionDownloader {
         }
 
         val process = ProcessBuilder()
-            .directory(Api.minecraftDirectory.toFile())
+            .directory(Api.launcherDirectory.toFile())
             .command(
                 JavaVersionManager.current?.executable ?: "java",
                 "-jar",
                 installerPath.absolutePathString(),
                 "client",
                 "-dir",
-                Api.minecraftDirectory.absolutePathString(),
+                Api.launcherDirectory.absolutePathString(),
                 "-mcversion",
                 id,
                 "-loader",
@@ -96,7 +96,7 @@ class FabricVersionDownloader {
             .start()
 
         if (process.waitFor() != 0) {
-            progress.pushMessage("Failed to install fabric $id")
+            progress.pushMessage("Failed to install Fabric $id")
         }
 
         VersionManager.updateVersions()

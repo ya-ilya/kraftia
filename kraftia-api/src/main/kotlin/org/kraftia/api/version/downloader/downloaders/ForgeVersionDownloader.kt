@@ -10,7 +10,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 class ForgeVersionDownloader {
-    data class Version(val version: String) {
+    data class AvailableVersion(val version: String) {
         val installers by lazy {
             FORGE_ENTRY_REGEX
                 .findAll(get("${FORGE_URL}index_$version.html").body.string().replace("\n", ""))
@@ -45,11 +45,22 @@ class ForgeVersionDownloader {
 
         private val FORGE_VERSION_PAGE_REGEX =
             "<a href=\"index_(.*?).html\">.*?</a>".toRegex()
+        private val FORGE_VERSION_PAGE_ACTIVE_ELEMENT_REGEX =
+            "<li class=\"elem-active\">(.*?)</li>".toRegex()
 
-        val versions: List<Version> = run {
-            FORGE_VERSION_PAGE_REGEX.findAll(get(FORGE_URL).body.string()).toList()
+
+        val versions: List<AvailableVersion> = run {
+            val body = get(FORGE_URL).body.string()
+
+            listOf(
+                AvailableVersion(
+                    FORGE_VERSION_PAGE_ACTIVE_ELEMENT_REGEX
+                        .find(body)!!
+                        .groupValues[1]
+                )
+            ) + FORGE_VERSION_PAGE_REGEX.findAll(body).toList()
                 .map { matchResult -> matchResult.groupValues[1] }
-                .map { Version(it) }
+                .map { AvailableVersion(it) }
         }
     }
 
@@ -58,7 +69,7 @@ class ForgeVersionDownloader {
         id: String,
         installerId: String? = null
     ) {
-        progress.pushMessage("Downloading $id forge version")
+        progress.pushMessage("Downloading $id Forge version")
 
         val version = versions.first { it.version == id }
 
@@ -86,7 +97,7 @@ class ForgeVersionDownloader {
         }
 
         val process = ProcessBuilder()
-            .directory(Api.minecraftDirectory.toFile())
+            .directory(Api.launcherDirectory.toFile())
             .command(
                 JavaVersionManager.current?.executable ?: "java",
                 "-jar",
@@ -98,7 +109,7 @@ class ForgeVersionDownloader {
             .start()
 
         if (process.waitFor() != 0) {
-            progress.pushMessage("Failed to install forge $id")
+            progress.pushMessage("Failed to install Forge $id")
         }
 
         VersionManager.updateVersions()

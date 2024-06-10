@@ -7,18 +7,18 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
 
-class AvailableForgeVersionArgument : ArgumentType<ForgeVersionDownloader.Version> {
+class AvailableForgeVersionArgument : ArgumentType<ForgeVersionDownloader.AvailableVersion> {
     companion object {
         private val NO_SUCH_FORGE_VERSION = DynamicCommandExceptionType { name: Any ->
             Message { "Forge version '$name' not found" }
         }
 
-        operator fun get(context: CommandContext<Any>): ForgeVersionDownloader.Version {
-            return context.getArgument("version", ForgeVersionDownloader.Version::class.java)
+        operator fun get(context: CommandContext<Any>): ForgeVersionDownloader.AvailableVersion {
+            return context.getArgument("version", ForgeVersionDownloader.AvailableVersion::class.java)
         }
     }
 
-    override fun parse(reader: StringReader): ForgeVersionDownloader.Version {
+    override fun parse(reader: StringReader): ForgeVersionDownloader.AvailableVersion {
         val argument = reader.readString()
 
         return ForgeVersionDownloader.versions.firstOrNull { it.version == argument }

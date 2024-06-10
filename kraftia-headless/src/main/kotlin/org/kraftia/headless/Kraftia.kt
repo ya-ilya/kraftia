@@ -16,6 +16,7 @@ fun main() {
     CommandManager.addCommand(InstanceCommand)
     CommandManager.addCommand(JavaCommand)
     CommandManager.addCommand(LaunchCommand)
+    CommandManager.addCommand(NeoForgeCommand)
     CommandManager.addCommand(VersionCommand)
 
     println(resourceText("ascii_logo.txt"))

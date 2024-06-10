@@ -1,7 +1,6 @@
 package org.kraftia.api.managers
 
 import org.kraftia.api.Api
-import org.kraftia.api.extensions.path
 import org.kraftia.api.version.Version
 import org.kraftia.api.version.container.VersionContainer
 import kotlin.io.path.*
@@ -16,7 +15,7 @@ object VersionManager : VersionContainer {
     override fun updateVersions() {
         versions.clear()
 
-        for (versionDirectory in path(Api.minecraftDirectory, "versions")
+        for (versionDirectory in Api.versionDownloader.versionsDirectory
             .listDirectoryEntries()
             .filter { it.isDirectory() }
         ) {

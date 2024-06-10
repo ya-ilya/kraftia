@@ -46,19 +46,23 @@ object JavaVersionManager : JavaVersionContainer {
             .command(path.absolutePathString(), "-version")
             .start()
 
-        return JAVA_VERSION_REGEX
-            .find(process.errorStream.reader().readText())!!
-            .groupValues[1]
-            .let {
-                when {
-                    it.contains("1.7") -> 7
-                    it.contains("1.8") -> 8
-                    else -> try {
-                        it.split(".")[0].toInt()
-                    } catch (ex: Exception) {
-                        8
+        return try {
+            JAVA_VERSION_REGEX
+                .find(process.errorStream.reader().readText())!!
+                .groupValues[1]
+                .let {
+                    when {
+                        it.contains("1.7") -> 7
+                        it.contains("1.8") -> 8
+                        else -> try {
+                            it.split(".")[0].toInt()
+                        } catch (ex: Exception) {
+                            8
+                        }
                     }
                 }
-            }
+        } finally {
+            process.destroy()
+        }
     }
 }

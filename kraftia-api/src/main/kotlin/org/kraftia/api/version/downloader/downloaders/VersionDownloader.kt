@@ -26,7 +26,7 @@ class VersionDownloader {
 
     data class Result(
         val version: org.kraftia.api.version.Version,
-        val classpath: List<Path>,
+        val classpath: Set<Path>,
         val versionBinDirectory: Path
     ) {
         init {
@@ -45,10 +45,10 @@ class VersionDownloader {
         }
     }
 
-    val versionsDirectory = path(Api.minecraftDirectory, "versions")
-    val librariesDirectory = path(Api.minecraftDirectory, "libraries")
-    val binDirectory = path(Api.launcherDirectory, "bin")
-    val assetsDirectory = path(Api.minecraftDirectory, "assets")
+    val versionsDirectory: Path = path(Api.launcherDirectory, "versions").toAbsolutePath()
+    val librariesDirectory: Path = path(Api.launcherDirectory, "libraries").toAbsolutePath()
+    val binDirectory: Path = path(Api.launcherDirectory, "bin").toAbsolutePath()
+    val assetsDirectory: Path = path(Api.launcherDirectory, "assets").toAbsolutePath()
 
     init {
         versionsDirectory.createDirectories()
@@ -82,7 +82,7 @@ class VersionDownloader {
             val classpath = download(
                 progress,
                 parent
-            ).classpath.toMutableList()
+            ).classpath.toMutableSet()
 
             progress.pushMessage("Downloading ${version.id} version libraries")
 
@@ -122,7 +122,7 @@ class VersionDownloader {
             throw IllegalArgumentException("Version not found")
         }
 
-        val classpath = mutableListOf<Path>()
+        val classpath = mutableSetOf<Path>()
 
         for (library in downloadLibraries(progress, version, versionBinDirectory)) {
             classpath.add(library)

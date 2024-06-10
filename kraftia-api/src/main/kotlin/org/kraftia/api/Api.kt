@@ -26,6 +26,7 @@ import org.kraftia.api.version.Version
 import org.kraftia.api.version.downloader.DownloaderProgress.Companion.downloaderProgress
 import org.kraftia.api.version.downloader.downloaders.FabricVersionDownloader
 import org.kraftia.api.version.downloader.downloaders.ForgeVersionDownloader
+import org.kraftia.api.version.downloader.downloaders.NeoForgeVersionDownloader
 import org.kraftia.api.version.downloader.downloaders.VersionDownloader
 import org.kraftia.api.version.serializers.ArgumentSerializer
 import java.io.File
@@ -38,7 +39,6 @@ object Api {
     val operatingSystem = OperatingSystem.current
     val launcherDirectory: Path = path("kraftia")
     val instancesDirectory: Path = path(launcherDirectory, "instances")
-    val minecraftDirectory: Path = operatingSystem.minecraftDirectory
     val javaExecutablePath: Path? = operatingSystem.javaExecutablePath
 
     val HTTP = OkHttpClient.Builder()
@@ -60,12 +60,13 @@ object Api {
 
     val fabricVersionDownloader = FabricVersionDownloader()
     val forgeVersionDownloader = ForgeVersionDownloader()
+    val neoForgeVersionDownloader = NeoForgeVersionDownloader()
     val versionDownloader = VersionDownloader()
 
     init {
         instancesDirectory.createDirectories()
 
-        val launcherProfiles = path(minecraftDirectory, "launcher_profiles.json")
+        val launcherProfiles = path(launcherDirectory, "launcher_profiles.json")
 
         if (!launcherProfiles.exists()) {
             launcherProfiles.createFile()
@@ -147,6 +148,7 @@ object Api {
             .directory(gameDirectory.toFile())
             .inheritIO()
             .start()
+
     }
 
     private fun arguments(
@@ -209,22 +211,10 @@ object Api {
         return adapter.arguments
     }
 
-    enum class OperatingSystem(
-        val minecraftDirectory: Path,
-        var javaExecutablePath: Path?
-    ) {
-        Windows(
-            path(System.getenv("APPDATA"), ".minecraft"),
-            path(System.getProperty("java.home"), "bin", "java.exe")
-        ),
-        Linux(
-            path(System.getProperty("user.home"), ".minecraft"),
-            path(System.getProperty("java.home"), "bin", "java")
-        ),
-        OsX(
-            path(System.getProperty("user.home"), "Library/Application Support/minecraft/"),
-            path(System.getProperty("java.home"), "bin", "java")
-        );
+    enum class OperatingSystem(var javaExecutablePath: Path?) {
+        Windows(path(System.getProperty("java.home"), "bin", "java.exe")),
+        Linux(path(System.getProperty("java.home"), "bin", "java")),
+        OsX(path(System.getProperty("java.home"), "bin", "java"));
 
         init {
             if (!javaExecutablePath!!.exists()) {

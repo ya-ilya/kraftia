@@ -7,14 +7,14 @@ import org.kraftia.headless.command.AbstractCommand
 import org.kraftia.headless.command.arguments.forge.AvailableForgeInstallerArgument
 import org.kraftia.headless.command.arguments.forge.AvailableForgeVersionArgument
 
-object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
+object ForgeCommand : AbstractCommand("forge", "Manage Forge versions") {
     init {
         builder.then(
             literal("installers").then(
                 argument("version", AvailableForgeVersionArgument()).execute { context ->
                     val version = AvailableForgeVersionArgument[context]
 
-                    println("Available ${version.version} forge installers:")
+                    println("Available ${version.version} Forge installers:")
 
                     for (installer in version.installers) {
                         println("- ${installer.id}${if (installer.latest) " [Latest]" else ""}")
@@ -32,7 +32,7 @@ object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
                             val installer = AvailableForgeInstallerArgument[context]
 
                             downloaderProgress { progress ->
-                                progress.withLoggingThread("VersionDownloader")
+                                progress.withLoggingThread("ForgeVersionDownloader")
                                 Api.forgeVersionDownloader.download(
                                     progress,
                                     id = version.version,
@@ -43,7 +43,7 @@ object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
                     )
                     .execute { context ->
                         downloaderProgress { progress ->
-                            progress.withLoggingThread("VersionDownloader")
+                            progress.withLoggingThread("ForgeVersionDownloader")
                             Api.forgeVersionDownloader.download(
                                 progress,
                                 id = AvailableForgeVersionArgument[context].version
@@ -55,7 +55,7 @@ object ForgeCommand : AbstractCommand("forge", "Manage forge versions") {
 
         builder.then(
             literal("list").execute {
-                println("Available forge versions:")
+                println("Available Forge versions:")
 
                 for (version in ForgeVersionDownloader.versions) {
                     println("- ${version.version}")

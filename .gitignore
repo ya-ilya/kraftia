@@ -38,6 +38,9 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+### Kotlin ###
+.kotlin
+
 ### kraftia ###
 krafita-api/kraftia
 kraftia-headless/kraftia

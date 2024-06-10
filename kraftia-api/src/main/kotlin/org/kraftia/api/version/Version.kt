@@ -1,6 +1,5 @@
 package org.kraftia.api.version
 
-import com.google.gson.*
 import com.google.gson.annotations.SerializedName
 
 data class Version(
