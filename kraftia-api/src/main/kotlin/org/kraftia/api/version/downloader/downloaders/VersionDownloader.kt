@@ -172,7 +172,7 @@ class VersionDownloader {
         progress.pushMessage("Downloading libraries...")
 
         for (library in version.libraries) {
-            if (!library.rules.checkRules(Api.operatingSystem, emptyMap())) continue
+            if (!checkRules(library.rules, Api.operatingSystem, emptyMap())) continue
             if (library.downloads == null && library.name != null) {
                 val (libraryGroup, libraryModule, libraryVersion) = library.name!!.split(":")
 

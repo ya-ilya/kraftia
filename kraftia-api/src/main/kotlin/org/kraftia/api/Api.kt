@@ -161,7 +161,7 @@ object Api {
     ): List<String> {
         val adapter = object {
             var arguments = arguments
-                .filter { argument -> argument.rules.checkRules(operatingSystem, features) }
+                .filter { argument -> checkRules(argument.rules, operatingSystem, features) }
                 .filter { argument -> !argument.rules.any { it.features.isNotEmpty() } }
                 .flatMap { it.value }
 

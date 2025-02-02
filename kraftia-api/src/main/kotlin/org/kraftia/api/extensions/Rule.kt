@@ -3,42 +3,73 @@ package org.kraftia.api.extensions
 import org.kraftia.api.Api
 import org.kraftia.api.version.Rule
 
-fun List<Rule>.checkRules(operatingSystem: Api.OperatingSystem, features: Map<String, Boolean>): Boolean {
+fun checkRules(
+    rules: List<Rule>,
+    operatingSystem: Api.OperatingSystem,
+    features: Map<String, Boolean>
+): Boolean {
     return when {
-        isEmpty() -> true
+        rules.any { it.os == null && it.features.isEmpty() } -> {
+            val defaultRule = rules.first { it.os == null && it.features.isEmpty() }
+            val otherRules = rules.filter { it != defaultRule }
 
-        size == 1 -> {
-            val rule = first()
-
-            when {
-                rule.features.isNotEmpty() -> {
-                    val feature = rule.features.entries.first()
-
-                    !features.containsKey(feature.key) || features[feature.key] == feature.value
-                }
-
-                rule.os == null -> {
-                    rule.action == Rule.Action.Allow
-                }
-
-                else -> {
-                    operatingSystem.name.equals(rule.os!!.name, true)
+            for (rule in otherRules) {
+                if (checkRule(rule, operatingSystem, features)) {
+                    return true
                 }
             }
+
+            defaultRule.action == Rule.Action.Allow
         }
 
         else -> {
-            when {
-                any { it.os == null && it.action == Rule.Action.Allow } -> {
-                    return !any { operatingSystem.name.equals(it.os?.name, true) && it.action == Rule.Action.Disallow }
-                }
-
-                any { operatingSystem.name.equals(it.os!!.name, true) && it.action == Rule.Action.Allow } -> {
-                    true
-                }
-
-                else -> throw IllegalArgumentException()
-            }
+            rules.all { checkRule(it, operatingSystem, features) }
         }
     }
+}
+
+fun checkRule(
+    rule: Rule,
+    operatingSystem: Api.OperatingSystem,
+    features: Map<String, Boolean>
+): Boolean {
+    return when {
+        rule.os != null && rule.features.isNotEmpty() -> {
+            checkFeatures(rule, features) && if (checkIsCompatibleOperatingSystem(rule, operatingSystem)) {
+                rule.action == Rule.Action.Allow
+            } else {
+                false
+            }
+        }
+
+        rule.os != null -> {
+            if (checkIsCompatibleOperatingSystem(rule, operatingSystem)) {
+                rule.action == Rule.Action.Allow
+            } else {
+                false
+            }
+        }
+
+        rule.features.isNotEmpty() -> {
+            checkFeatures(rule, features)
+        }
+
+        else -> {
+            rule.action == Rule.Action.Allow
+        }
+    }
+}
+
+fun checkIsCompatibleOperatingSystem(
+    rule: Rule,
+    operatingSystem: Api.OperatingSystem
+): Boolean {
+    return rule.os!!.name == operatingSystem.name
+}
+
+fun checkFeatures(
+    rule: Rule,
+    features: Map<String, Boolean>
+): Boolean {
+    return rule.features.all { features.containsKey(it.key) && features[it.key] == it.value }
 }
